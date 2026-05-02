@@ -1,0 +1,41 @@
+version: "3.9"
+
+services:
+
+  app:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    container_name: hr_mlops_app
+    env_file:
+      - .env
+    volumes:
+      - ..:/app
+    ports:
+      - "8000:8000"
+      - "8050:8050"
+    depends_on:
+      - mlflow
+    environment:
+      - MLFLOW_TRACKING_URI=http://mlflow:5000
+
+  mlflow:
+    image: ghcr.io/mlflow/mlflow:v2.13.0
+    container_name: mlflow
+    command: >
+      mlflow server
+      --backend-store-uri sqlite:///mlflow.db
+      --default-artifact-root /mlflow/artifacts
+      --host 0.0.0.0
+      --port 5000
+    volumes:
+      - ../mlruns:/mlflow/artifacts
+    ports:
+      - "5000:5000"
+
+  prefect:
+    image: prefecthq/prefect:2.19.5-python3.11
+    container_name: prefect
+    command: prefect server start --host 0.0.0.0
+    ports:
+      - "4200:4200"
