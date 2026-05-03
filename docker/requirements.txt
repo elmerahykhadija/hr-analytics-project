@@ -1,14 +1,16 @@
-# Core Data (Fix pour dice-ml)
+# Core Data
 pandas>=1.5.0,<2.0.0
 numpy>=1.26.4,<2.0.0
 scikit-learn==1.5.1
 
-# dbt & Snowflake (Laisse dbt gérer les dépendances Snowflake)
+# dbt & Snowflake
 dbt-snowflake==1.8.0
 
 # MLOps & Orchestration
 mlflow==2.13.0
 prefect==2.19.5
+pydantic>=1.10.0,<2.0.0  # <--- CORRECTION CRUCIALE : Force V1
+griffe==0.38.0           # <--- CORRECTION : Version stable
 
 # API & Dashboard
 fastapi==0.115.0
