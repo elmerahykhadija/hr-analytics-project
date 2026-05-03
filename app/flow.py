@@ -27,12 +27,18 @@ def data_quality_check():
     print("LOG: Qualité validée")
 
 @task
-def train_model():
-    print("LOG: Démarrage Training")
-    result = subprocess.run(['python3', 'app/train.py'], capture_output=True, text=True)
+def prepare_data():
+    print("LOG: Démarrage dbt")
+    # On suppose que ton dossier dbt s'appelle 'dbt_hr_project' et est à la racine
+    result = subprocess.run(
+        ["dbt", "run", "--project-dir", "dbt_hr_project", "--profiles-dir", "dbt_hr_project"],
+        capture_output=True,
+        text=True
+    )
     if result.returncode != 0:
-        raise Exception(f"Erreur Training: {result.stderr}")
-    print("LOG: Training terminé")
+        print(f"STDOUT: {result.stdout}") # Utile pour voir les erreurs de compilation dbt
+        raise Exception(f"Erreur dbt: {result.stderr}")
+    print("LOG: dbt terminé avec succès")
 
 @flow(name="_Pipeline")
 def hr_attrition_flow():

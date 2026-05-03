@@ -1,0 +1,10 @@
+version: 2
+
+sources:
+  - name: raw
+    database: RH_DB
+    schema: RAW
+    tables:
+      - name: hr_raw_data
+        identifier: HR_RAW_DATA
+        description: "Table brute des données RH depuis le CSV"

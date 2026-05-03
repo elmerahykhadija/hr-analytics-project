@@ -1,4 +1,4 @@
-dbt_hr_project:
+dbt_hr_project:  # <--- Cette clé est OBLIGATOIRE
   target: dev
   outputs:
     dev:

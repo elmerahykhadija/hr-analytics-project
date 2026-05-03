@@ -20,7 +20,8 @@ ctx = snowflake.connector.connect(
 
 # Charger dataset DBT
 TABLE = os.getenv('DQ_TABLE', 'HR_EMPLOYEE_ENCODED')
-query = f"SELECT * FROM {TABLE}"
+# Force le chemin complet pour être sûr de l'endroit où on cherche
+query = f'SELECT * FROM "{os.getenv("SNOWFLAKE_DATABASE")}"."GOLD"."HR_EMPLOYEE_ENCODED"'
 df = pd.read_sql(query, ctx)
 
 # nettoyage léger des noms de colonnes

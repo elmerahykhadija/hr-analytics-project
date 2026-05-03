@@ -13,7 +13,7 @@ load_dotenv()
 
 # 1. Configuration MLflow
 # L'URI pointe vers le service nommé 'mlflow' dans ton docker-compose
-mlflow.set_tracking_uri("http://localhost:5000") 
+mlflow.set_tracking_uri("http://mlflow:5000")
 mlflow.set_experiment("HR_Attrition_Prediction")
 
 def train_model():
