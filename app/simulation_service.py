@@ -39,6 +39,8 @@ def predict_risk(model, row_dict):
     Prédire le risque d'attrition pour un candidat.
     row_dict contient les valeurs du formulaire dashboard
     """
+    model = load_model()  # ← Recharger ici
+    
     feature_names = _get_feature_names(model)
     
     # Initialiser toutes les colonnes à 0
