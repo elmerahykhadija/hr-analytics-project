@@ -66,9 +66,9 @@ app.layout = html.Div(
         html.Div(
             style=container_style,
             children=[
-                html.H1("Simulateur de risque d’attrition", style={"color": "#f8fafc", "marginBottom": "8px"}),
+                html.H1("Simulateur de risque d'attrition", style={"color": "#f8fafc", "marginBottom": "8px"}),
                 html.P(
-                    "Remplissez les informations de l'employé. Attrition est la cible prédite par le modèle, pas une valeur à saisir.",
+                    "Remplissez les informations du candidat. Le risque d'attrition est calculé par le modèle de Machine Learning.",
                     style={"color": "#cbd5e1", "marginBottom": "18px"},
                 ),
                 html.Div(
@@ -77,112 +77,104 @@ app.layout = html.Div(
                         section(
                             "Identité",
                             [
-                                field_block("Age", "Âge de l'employé en années.", dcc.Input(id="age", type="number", value=35, min=18, max=70, style=input_style)),
+                                field_block("Âge", "Âge du candidat en années (18-70).", dcc.Input(id="age", type="number", value=35, min=18, max=70, style=input_style)),
                                 field_block(
-                                    "Gender",
-                                    "Genre de l'employé.",
+                                    "Genre",
+                                    "Genre du candidat.",
                                     dropdown_control(
                                         id="gender",
-                                        options=[{"label": "Male", "value": "Male"}, {"label": "Female", "value": "Female"}],
+                                        options=[{"label": "Homme", "value": "Male"}, {"label": "Femme", "value": "Female"}],
                                         value="Male",
                                     ),
                                 ),
                                 field_block(
-                                    "MaritalStatus",
-                                    "Situation familiale telle que déclarée dans le jeu de données.",
+                                    "Situation familiale",
+                                    "État matrimonial.",
                                     dropdown_control(
                                         id="maritalstatus",
                                         options=[
-                                            {"label": "Single", "value": "Single"},
-                                            {"label": "Married", "value": "Married"},
-                                            {"label": "Divorced", "value": "Divorced"},
+                                            {"label": "Célibataire", "value": "Single"},
+                                            {"label": "Marié(e)", "value": "Married"},
+                                            {"label": "Divorcé(e)", "value": "Divorced"},
                                         ],
                                         value="Single",
                                     ),
                                 ),
                                 field_block(
-                                    "EducationLevel",
-                                    "Niveau d'études de 1 à 5.",
-                                    dcc.Input(id="educationlevel", type="number", value=3, min=1, max=5, style=input_style),
+                                    "Niveau d'études",
+                                    "Niveau de formation (1 à 5).",
+                                    dcc.Input(id="education", type="number", value=3, min=1, max=5, style=input_style),
                                 ),
                             ],
                         ),
                         section(
-                            "Poste et ancienneté",
+                            "Poste et conditions",
                             [
                                 field_block(
-                                    "JobRole",
-                                    "Fonction occupée par l'employé.",
-                                    dropdown_control(
-                                        id="jobrole",
-                                        options=[
-                                            {"label": "Research Scientist", "value": "Research Scientist"},
-                                            {"label": "Sales Executive", "value": "Sales Executive"},
-                                            {"label": "Manager", "value": "Manager"},
-                                            {"label": "Human Resources", "value": "Human Resources"},
-                                        ],
-                                        value="Research Scientist",
-                                    ),
-                                ),
-                                field_block(
-                                    "Department",
-                                    "Département ou service d'appartenance.",
+                                    "Département",
+                                    "Département d'affectation.",
                                     dropdown_control(
                                         id="department",
                                         options=[
-                                            {"label": "Sales", "value": "Sales"},
-                                            {"label": "Research & Development", "value": "Research & Development"},
-                                            {"label": "Human Resources", "value": "Human Resources"},
+                                            {"label": "Ventes", "value": "Sales"},
+                                            {"label": "Recherche & Développement", "value": "Research & Development"},
+                                            {"label": "Ressources Humaines", "value": "Human Resources"},
                                         ],
                                         value="Research & Development",
                                     ),
                                 ),
-                                field_block("JobLevel", "Niveau hiérarchique, de 1 à 5.", dcc.Input(id="job_level", type="number", value=2, min=1, max=5, style=input_style)),
-                                field_block("YearsAtCompany", "Nombre d'années dans l'entreprise.", dcc.Input(id="years_company", type="number", value=3, min=0, style=input_style)),
-                                field_block("YearsInCurrentRole", "Nombre d'années dans le poste actuel.", dcc.Input(id="years_current_role", type="number", value=2, min=0, style=input_style)),
-                                field_block("YearsSinceLastPromotion", "Nombre d'années depuis la dernière promotion.", dcc.Input(id="years_since_promo", type="number", value=1, min=0, style=input_style)),
-                                field_block("NumCompaniesWorked", "Nombre total d'entreprises déjà connues.", dcc.Input(id="num_companies_worked", type="number", value=1, min=0, style=input_style)),
-                            ],
-                        ),
-                        section(
-                            "Rémunération et satisfaction",
-                            [
-                                field_block("MonthlyIncome", "Salaire mensuel brut.", dcc.Input(id="monthly_income", type="number", value=5000, min=0, style=input_style)),
-                                field_block("SalaryIncreasePercent", "Pourcentage de hausse salariale annuel.", dcc.Input(id="salary_increase_percent", type="number", value=11, min=0, max=100, style=input_style)),
-                                field_block("JobSatisfaction", "Niveau de satisfaction au travail, de 1 à 4.", dcc.Input(id="job_satisfaction", type="number", value=3, min=1, max=4, style=input_style)),
-                                field_block("EnvironmentSatisfaction", "Satisfaction vis-à-vis de l'environnement, de 1 à 4.", dcc.Input(id="environment_satisfaction", type="number", value=3, min=1, max=4, style=input_style)),
-                                field_block("WorkLifeBalance", "Équilibre vie professionnelle / vie personnelle, de 1 à 4.", dcc.Input(id="work_life_balance", type="number", value=3, min=1, max=4, style=input_style)),
-                                field_block("PerformanceRating", "Note de performance, généralement entre 3 et 4.", dcc.Input(id="perf_rating", type="number", value=3, min=3, max=4, style=input_style)),
-                                field_block("TrainingTimesLastYear", "Nombre de formations suivies l'année dernière.", dcc.Input(id="training_times_last_year", type="number", value=2, min=0, style=input_style)),
-                            ],
-                        ),
-                        section(
-                            "Mobilité et conditions",
-                            [
-                                field_block("DistanceFromHome", "Distance entre le domicile et le lieu de travail, en km.", dcc.Input(id="distance", type="number", value=10, min=0, style=input_style)),
                                 field_block(
-                                    "BusinessTravel",
-                                    "Fréquence habituelle des déplacements professionnels.",
+                                    "Distance domicile-travail",
+                                    "Distance en kilomètres.",
+                                    dcc.Input(id="distance", type="number", value=10, min=0, style=input_style),
+                                ),
+                                field_block(
+                                    "Expérience professionnelle",
+                                    "Années d'expérience totale.",
+                                    dcc.Input(id="total_working_years", type="number", value=5, min=0, style=input_style),
+                                ),
+                                field_block(
+                                    "Déplacements professionnels",
+                                    "Fréquence des trajets professionnels.",
                                     dropdown_control(
                                         id="businesstravel",
                                         options=[
-                                            {"label": "Travel_Rarely", "value": "Travel_Rarely"},
-                                            {"label": "Travel_Frequently", "value": "Travel_Frequently"},
-                                            {"label": "Non-Travel", "value": "Non-Travel"},
+                                            {"label": "Aucun déplacement", "value": "Non-Travel"},
+                                            {"label": "Déplacements rares", "value": "Travel_Rarely"},
+                                            {"label": "Déplacements fréquents", "value": "Travel_Frequently"},
                                         ],
                                         value="Non-Travel",
                                     ),
                                 ),
+                            ],
+                        ),
+                        section(
+                            "Rémunération",
+                            [
                                 field_block(
-                                    "OverTime",
-                                    "Indique si l'employé effectue régulièrement des heures supplémentaires.",
+                                    "Salaire mensuel",
+                                    "Revenu mensuel brut en euros.",
+                                    dcc.Input(id="monthly_income", type="number", value=5000, min=0, style=input_style),
+                                ),
+                                field_block(
+                                    "Heures supplémentaires",
+                                    "L'employé effectuera-t-il des heures supplémentaires ?",
                                     dropdown_control(
                                         id="overtime",
-                                        options=[{"label": "Yes", "value": "Yes"}, {"label": "No", "value": "No"}],
+                                        options=[{"label": "Non", "value": "No"}, {"label": "Oui", "value": "Yes"}],
                                         value="No",
                                     ),
                                 ),
-                                field_block("Attrition (target)", "La cible est prédite par le modèle et affichée après analyse.", html.Div("Non saisissable manuellement", style={"color": "#f8fafc", "fontWeight": "700"})),
+                            ],
+                        ),
+                        section(
+                            "Résultat",
+                            [
+                                field_block(
+                                    "Risque d'attrition",
+                                    "Cliquez sur 'Analyser' pour obtenir la prédiction.",
+                                    html.Div(id="result", style={"color": "#f8fafc", "fontWeight": "700", "minHeight": "100px"}),
+                                ),
                             ],
                         ),
                     ],
@@ -204,14 +196,13 @@ app.layout = html.Div(
                                 "borderRadius": "10px",
                                 "fontWeight": "700",
                                 "cursor": "pointer",
+                                "fontSize": "16px",
                             },
                         ),
                     ],
                 ),
 
                 html.Hr(style={"marginTop": "20px", "borderColor": "rgba(255,255,255,0.06)"}),
-
-                html.Div(id="result", style={"marginTop": "18px", "fontSize": "18px"}),
             ],
         )
     ],
@@ -223,88 +214,73 @@ app.layout = html.Div(
     State("age", "value"),
     State("gender", "value"),
     State("maritalstatus", "value"),
-    State("educationlevel", "value"),
-    State("jobrole", "value"),
+    State("education", "value"),
     State("department", "value"),
-    State("job_level", "value"),
-    State("years_company", "value"),
-    State("years_current_role", "value"),
-    State("years_since_promo", "value"),
-    State("monthly_income", "value"),
-    State("salary_increase_percent", "value"),
-    State("job_satisfaction", "value"),
-    State("environment_satisfaction", "value"),
-    State("work_life_balance", "value"),
-    State("overtime", "value"),
     State("distance", "value"),
-    State("perf_rating", "value"),
+    State("total_working_years", "value"),
+    State("monthly_income", "value"),
     State("businesstravel", "value"),
-    State("num_companies_worked", "value"),
-    State("training_times_last_year", "value"),
+    State("overtime", "value"),
 )
 def run_simulation(
     n,
     age,
     gender,
     maritalstatus,
-    educationlevel,
-    jobrole,
+    education,
     department,
-    job_level,
-    years_company,
-    years_current_role,
-    years_since_promo,
-    monthly_income,
-    salary_increase_percent,
-    job_satisfaction,
-    environment_satisfaction,
-    work_life_balance,
-    overtime,
     distance,
-    perf_rating,
+    total_working_years,
+    monthly_income,
     businesstravel,
-    num_companies_worked,
-    training_times_last_year,
+    overtime,
 ):
     if n == 0:
-        return "Remplissez les champs et cliquez sur « Analyser le risque »."
+        return "Remplissez tous les champs et cliquez sur « Analyser le risque »."
 
     data = {
-        "AGE": age or 0,
+        "AGE": age or 35,
         "GENDER": gender,
         "MARITALSTATUS": maritalstatus,
-        "EDUCATION": educationlevel or 0,
-        "JOBROLE": jobrole,
+        "EDUCATION": education or 3,
         "DEPARTMENT": department,
-        "JOBLEVEL": job_level or 1,
-        "YEARSATCOMPANY": years_company or 0,
-        "YEARSINCURRENTROLE": years_current_role or 0,
-        "YEARSSINCELASTPROMOTION": years_since_promo or 0,
-        "MONTHLYINCOME": monthly_income or 0,
-        "PERCENTSALARYHIKE": salary_increase_percent or 0,
-        "JOBSATISFACTION": job_satisfaction or 0,
-        "ENVIRONMENTSATISFACTION": environment_satisfaction or 0,
-        "WORKLIFEBALANCE": work_life_balance or 0,
-        "OVERTIME": overtime,
-        "DISTANCEFROMHOME": distance or 0,
-        "PERFORMANCERATING": perf_rating or 3,
+        "DISTANCEFROMHOME": distance or 10,
+        "TOTALWORKINGYEARS": total_working_years or 5,
+        "MONTHLYINCOME": monthly_income or 5000,
         "BUSINESSTRAVEL": businesstravel,
-        "NUMCOMPANIESWORKED": num_companies_worked or 0,
-        "TRAININGTIMESLASTYEAR": training_times_last_year or 0,
+        "OVERTIME": overtime,
     }
 
-    res = predict_risk(model, data)
-    risk_score = res.get("risk_score", 0)
-    risk_percent = risk_score * 100 if risk_score <= 1 else risk_score
+    try:
+        res = predict_risk(model, data)
+        risk_score = res.get("risk_score", 0)
+        risk_percent = risk_score * 100 if risk_score <= 1 else risk_score
 
-    color = "#f87171" if risk_percent >= 50 else "#4ade80"
-    verdict = "L’employé risque probablement de quitter l’entreprise." if risk_percent >= 50 else "L’employé a un risque faible de départ."
+        # Déterminer le niveau de risque et la couleur
+        if risk_percent < 30:
+            color = "#4ade80"  # Vert
+            level = "TRÈS FAIBLE"
+            icon = "✓"
+            verdict = f"Excellent ! Ce candidat a un risque très faible de départ ({risk_percent:.1f}%)."
+        elif risk_percent < 50:
+            color = "#fbbf24"  # Orange
+            level = "MODÉRÉ"
+            icon = "⚠️"
+            verdict = f"Attention : Ce candidat a un risque modéré de départ ({risk_percent:.1f}%). À surveiller."
+        else:
+            color = "#f87171"  # Rouge
+            level = "ÉLEVÉ"
+            icon = "⛔"
+            verdict = f"Danger : Ce candidat risque probablement de quitter l'entreprise ({risk_percent:.1f}%)."
 
-    return html.Div([
-        html.Div(f"{risk_percent:.1f}%", style={"fontSize": "48px", "fontWeight": "800", "color": color}),
-        html.Div(verdict, style={"marginTop": "8px", "fontSize": "18px"}),
-        html.Div(f"Classe prédite: {res.get('prediction', 'N/A')}", style={"marginTop": "6px", "color": "#cbd5e1"})
-    ])
+        return html.Div([
+            html.Div(f"{risk_percent:.1f}%", style={"fontSize": "56px", "fontWeight": "800", "color": color, "marginBottom": "8px"}),
+            html.Div(f"{icon} Risque {level}", style={"fontSize": "20px", "fontWeight": "700", "color": color, "marginBottom": "12px"}),
+            html.Div(verdict, style={"marginTop": "10px", "fontSize": "15px", "lineHeight": "1.5"}),
+            html.Div(f"Classe prédite : {res.get('prediction', 'N/A')}", style={"marginTop": "14px", "color": "#cbd5e1", "fontSize": "13px"})
+        ])
+    except Exception as e:
+        return html.Div(f"Erreur lors de la prédiction : {str(e)}", style={"color": "#fca5a5"})
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=8000, debug=False)

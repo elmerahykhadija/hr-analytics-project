@@ -12,9 +12,36 @@ from mlflow.tracking import MlflowClient
 load_dotenv()
 
 # 1. Configuration MLflow
-# L'URI pointe vers le service nommé 'mlflow' dans ton docker-compose
 mlflow.set_tracking_uri("http://mlflow:5000")
 mlflow.set_experiment("HR_Attrition_Prediction")
+
+# Colonnes réelles disponibles dans HR_EMPLOYEE_ENCODED (one-hot encodées)
+REQUIRED_FEATURES = [
+    # Numériques
+    "AGE",
+    "DISTANCEFROMHOME",
+    "EDUCATION",
+    "MONTHLYINCOME",
+    "TOTALWORKINGYEARS",
+    # One-hot encodées - Business Travel
+    "BUSINESSTRAVEL_RARELY",
+    "BUSINESSTRAVEL_FREQUENTLY",
+    "BUSINESSTRAVEL_NONTRAVEL",
+    # One-hot encodées - Department
+    "DEPARTMENT_SALES",
+    "DEPARTMENT_RND",
+    "DEPARTMENT_HR",
+    # One-hot encodées - Gender
+    "GENDER_MALE",
+    "GENDER_FEMALE",
+    # One-hot encodées - Marital Status
+    "MARITALSTATUS_SINGLE",
+    "MARITALSTATUS_MARRIED",
+    "MARITALSTATUS_DIVORCED",
+    # One-hot encodées - Overtime
+    "OVERTIME_YES",
+    "OVERTIME_NO",
+]
 
 def train_model():
     # 2. Récupération des données depuis Snowflake (Table GOLD)
@@ -23,16 +50,23 @@ def train_model():
         password=os.getenv('SNOWFLAKE_PASS'),
         account=os.getenv('SNOWFLAKE_ACCOUNT'),
         database=os.getenv('SNOWFLAKE_DATABASE'),
-        schema='GOLD', # On utilise les données préparées par dbt[cite: 7]
+        schema='GOLD',
         role=os.getenv('SNOWFLAKE_ROLE'),
         warehouse=os.getenv('SNOWFLAKE_WAREHOUSE')
     )
     
-    query = "SELECT * FROM HR_EMPLOYEE_ENCODED" # Nom de ton dernier modèle dbt
+    query = "SELECT * FROM HR_EMPLOYEE_ENCODED"
     df = pd.read_sql(query, ctx)
     ctx.close()
 
-    # 3. Préparation Features/Target
+    # 3. Sélectionner uniquement les features nécessaires + la target
+    df = df[REQUIRED_FEATURES + ['ATTRITION']]
+    
+    print(f"Colonnes utilisées pour l'entraînement ({len(REQUIRED_FEATURES)}):")
+    print(REQUIRED_FEATURES)
+    print(f"Dataset shape: {df.shape}")
+
+    # 4. Préparation Features/Target
     X = df.drop(columns=['ATTRITION'])
     # Encodage de la target Attrition (Yes -> 1, No -> 0)
     y = df['ATTRITION'].apply(lambda x: 1 if x == 'Yes' else 0)
@@ -77,6 +111,15 @@ def train_model():
         acc = accuracy_score(y_test, y_pred)
         f1 = f1_score(y_test, y_pred)
 
+        # Feature Importance
+        feature_importance = pd.DataFrame({
+            'feature': X.columns,
+            'importance': best_model.feature_importances_
+        }).sort_values('importance', ascending=False)
+        
+        print("\n--- Feature Importance ---")
+        print(feature_importance)
+
         mlflow.log_params(grid.best_params_)
         mlflow.log_metric("best_cv_f1", grid.best_score_)
         mlflow.log_metric("accuracy", acc)
@@ -104,7 +147,7 @@ def train_model():
 
         # 2. Comparer et Promouvoir
         if f1 > old_f1:
-            print("Nouveau modèle meilleur ! Promotion en PRODUCTION.")
+            print("✓ Nouveau modèle meilleur ! Promotion en PRODUCTION.")
             new_version = client.get_latest_versions(model_name, stages=["None"])[0].version
             client.transition_model_version_stage(
                 name=model_name,
@@ -113,8 +156,9 @@ def train_model():
                 archive_existing_versions=True
             )
         else:
-            print("Le nouveau modèle n'est pas meilleur. On garde l'ancien en Production.")
+            print("✗ Le nouveau modèle n'est pas meilleur. On garde l'ancien en Production.")
 
+        print("\n=== RÉSULTATS ===")
         print("Meilleurs paramètres:", grid.best_params_)
         print(f"Accuracy test: {acc:.2f}, F1 test: {f1:.2f}")
 
