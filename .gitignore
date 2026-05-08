@@ -1,0 +1,6 @@
+dbt_hr_project/target/
+dbt_hr_project/logs/
+reports/
+*.env
+venv/
+__pycache__/
