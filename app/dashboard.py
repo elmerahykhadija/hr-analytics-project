@@ -1,96 +1,247 @@
 import dash
-from dash import dcc, html, Input, Output, State
+from dash import dcc, html, Input, Output, callback
+import plotly.graph_objects as go
 from simulation_service import load_model, predict_risk
 
 app = dash.Dash(__name__)
 server = app.server
 
-model = load_model()
+# Tentative de chargement du modèle
+try:
+    model = load_model()
+except:
+    model = None
+    print("[WARNING] Le modèle n'a pas pu être chargé.")
+
+# --- PALETTE DE COULEURS "NATURE ZEN" ---
+BG_APP = "#F6F9F4"
+BG_CARD = "#FFFFFF"
+TEXT_HEADER = "#1C3829"
+TEXT_BODY = "#6B7280"
+BRAND_COLOR = "#2D7A4F"
+HIGHLIGHT_GREEN = "#E9F5E1"
+BORDER_GREEN = "#C6E8C0"
+
+# --- COULEURS D'ÉTAT ---
+SUCCESS_COLOR = "#16A34A"
+WARNING_COLOR = "#D97706"
+DANGER_COLOR = "#DC2626"
+
+# --- STYLES RÉUTILISABLES ---
+shadow_soft = "0px 8px 30px rgba(45, 122, 79, 0.08)"
+shadow_salary = "0px 8px 20px rgba(45, 122, 79, 0.25)"
 
 page_style = {
     "minHeight": "100vh",
-    "background": "linear-gradient(135deg, #0f172a 0%, #1f2937 45%, #3b0d11 100%)",
-    "color": "white",
-    "fontFamily": "Arial, sans-serif",
-    "padding": "40px",
+    "background": BG_APP,
+    "color": TEXT_BODY,
+    "fontFamily": "'DM Sans', 'Inter', '-apple-system', sans-serif",
+    "padding": "40px 20px",
 }
 
-container_style = {
-    "maxWidth": "1180px",
-    "margin": "0 auto",
-    "padding": "28px",
-    "backgroundColor": "rgba(255,255,255,0.05)",
-    "borderRadius": "18px",
-    "boxShadow": "0 18px 60px rgba(0, 0, 0, 0.25)",
-    "backdropFilter": "blur(8px)",
+header_style = {
+    "maxWidth": "1200px",
+    "margin": "0 auto 30px auto",
+    "textAlign": "center",
 }
 
-section_style = {
-    "padding": "18px",
-    "backgroundColor": "rgba(15, 23, 42, 0.42)",
-    "border": "1px solid rgba(255,255,255,0.08)",
+card_style = {
+    "padding": "24px",
+    "backgroundColor": BG_CARD,
+    "borderRadius": "24px",
+    "boxShadow": shadow_soft,
+    "border": f"1px solid {BORDER_GREEN}",
+}
+
+kpi_style = {
+    "padding": "20px",
+    "backgroundColor": HIGHLIGHT_GREEN,
+    "borderRadius": "20px",
+    "textAlign": "center",
+    "border": f"1px solid {BORDER_GREEN}",
+    "display": "flex",
+    "flexDirection": "column",
+    "justifyContent": "center",
+}
+
+input_container_style = {
+    "background": HIGHLIGHT_GREEN,
     "borderRadius": "14px",
+    "padding": "15px",
+    "marginBottom": "16px",
+    "border": f"1px solid {BORDER_GREEN}",
 }
 
-field_group_style = {"marginBottom": "14px"}
-label_style = {"display": "block", "marginBottom": "6px", "fontWeight": "700", "color": "#f8fafc"}
-help_style = {"display": "block", "marginTop": "5px", "color": "#cbd5e1", "fontSize": "12px", "lineHeight": "1.35"}
-input_style = {"width": "100%", "borderRadius": "8px", "border": "1px solid rgba(255,255,255,0.14)", "backgroundColor": "rgba(255,255,255,0.94)", "color": "#0f172a"}
-dropdown_style = {"width": "100%", "backgroundColor": "rgba(255,255,255,0.94)", "color": "#0f172a"}
+label_style = {
+    "fontWeight": "700",
+    "color": TEXT_HEADER,
+    "fontSize": "13px",
+    "marginBottom": "10px",
+    "display": "block",
+}
 
 
-def field_block(label, description, control):
-    return html.Div(
-        style=field_group_style,
-        children=[
-            html.Label(label, style=label_style),
-            control,
-            html.Small(description, style=help_style),
-        ],
+# --- FONCTION POUR CRÉER LE CERCLE DE RISQUE ---
+def create_risk_donut(risk_percent):
+    """Créer un graphique circulaire (donut) avec le pourcentage au centre."""
+    
+    # Déterminer la couleur selon le risque
+    if risk_percent < 30:
+        base_color = SUCCESS_COLOR
+    elif risk_percent < 50:
+        base_color = WARNING_COLOR
+    else:
+        base_color = DANGER_COLOR
+    
+    colors = [base_color, "#E5E7EB"]
+    
+    # Créer le graphique
+    fig = go.Figure(data=[go.Pie(
+        values=[risk_percent, 100 - risk_percent],
+        labels=["Risque", "Sécurisé"],
+        hole=0.75,  # Taille du trou central (effet donut)
+        marker=dict(colors=colors, line=dict(color=BG_CARD, width=2)),
+        textinfo='none',
+        hoverinfo='label+percent',
+        direction='clockwise',
+        sort=False
+    )])
+    
+    # Ajouter le texte au centre
+    fig.add_annotation(
+        text=f"{risk_percent:.1f}%",
+        x=0.5, y=0.5,
+        font=dict(size=48, color=base_color, family="'DM Sans', sans-serif", weight="bold"),
+        showarrow=False
+    )
+    
+    fig.add_annotation(
+        text="Risque de départ",
+        x=0.5, y=0.35,
+        font=dict(size=14, color=TEXT_BODY, family="'DM Sans', sans-serif"),
+        showarrow=False
     )
 
-
-def dropdown_control(**kwargs):
-    return dcc.Dropdown(className="dark-dropdown", style=dropdown_style, **kwargs)
-
-
-def section(title, children):
-    return html.Div(
-        style=section_style,
-        children=[html.H3(title, style={"marginBottom": "14px", "color": "#f8fafc"}), *children],
+    fig.update_layout(
+        margin=dict(l=0, r=0, t=0, b=0),
+        height=350,
+        showlegend=False,
+        paper_bgcolor='rgba(0,0,0,0)',
+        plot_bgcolor='rgba(0,0,0,0)',
     )
+    
+    return fig
 
+
+# --- LAYOUT DE L'APPLICATION ---
 app.layout = html.Div(
     style=page_style,
     children=[
+        # HEADER
         html.Div(
-            style=container_style,
+            style=header_style,
             children=[
-                html.H1("Simulateur de risque d'attrition", style={"color": "#f8fafc", "marginBottom": "8px"}),
-                html.P(
-                    "Remplissez les informations du candidat. Le risque d'attrition est calculé par le modèle de Machine Learning.",
-                    style={"color": "#cbd5e1", "marginBottom": "18px"},
-                ),
+                html.H1("Simulateur d'Attrition", 
+                        style={'margin': '0 0 8px 0', 'color': TEXT_HEADER, 'fontSize': '32px', 'fontWeight': '800'}),
+                html.P("Analyse en temps réel du risque de départ de vos collaborateurs",
+                        style={'margin': 0, 'color': TEXT_BODY, 'fontSize': '16px'}),
+            ]
+        ),
+
+        html.Div(
+            style={'maxWidth': '1200px', 'margin': '0 auto'},
+            children=[
                 html.Div(
-                    style={"display": "grid", "gridTemplateColumns": "repeat(2, minmax(0, 1fr))", "gap": "18px", "marginTop": "18px"},
+                    style={'display': 'grid', 'gridTemplateColumns': '1fr 1fr', 'gap': '30px'},
                     children=[
-                        section(
-                            "Identité",
-                            [
-                                field_block("Âge", "Âge du candidat en années (18-70).", dcc.Input(id="age", type="number", value=35, min=18, max=70, style=input_style)),
-                                field_block(
-                                    "Genre",
-                                    "Genre du candidat.",
-                                    dropdown_control(
-                                        id="gender",
-                                        options=[{"label": "Homme", "value": "Male"}, {"label": "Femme", "value": "Female"}],
-                                        value="Male",
+                        
+                        # --- COLONNE GAUCHE : PARAMÈTRES ---
+                        html.Div(
+                            style=card_style,
+                            children=[
+                                html.H3("Profil du Collaborateur", style={'color': TEXT_HEADER, 'marginTop': 0, 'marginBottom': '20px', 'fontSize': '18px'}),
+                                
+                                # Âge
+                                html.Div(style=input_container_style, children=[
+                                    html.Label("Âge", style=label_style),
+                                    dcc.Slider(
+                                        id="age", min=18, max=70, value=35, step=1,
+                                        marks={18: '18', 35: '35', 50: '50', 70: '70'},
+                                        tooltip={"placement": "bottom", "always_visible": True},
                                     ),
-                                ),
-                                field_block(
-                                    "Situation familiale",
-                                    "État matrimonial.",
-                                    dropdown_control(
+                                ]),
+
+                                # Expérience totale
+                                html.Div(style=input_container_style, children=[
+                                    html.Label("Expérience totale (années)", style=label_style),
+                                    dcc.Slider(
+                                        id="total_working_years", min=0, max=40, value=5, step=1,
+                                        marks={0: '0', 10: '10', 20: '20', 40: '40'},
+                                        tooltip={"placement": "bottom", "always_visible": True},
+                                    ),
+                                ]),
+                                
+                                # Distance
+                                html.Div(style=input_container_style, children=[
+                                    html.Label("Distance domicile-travail (km)", style=label_style),
+                                    dcc.Input(
+                                        id="distance", type="number", value=10, min=0, max=100, step=1,
+                                        style={'width': '100%', 'padding': '10px', 'border': 'none', 'borderRadius': '8px', 'background': 'white', 'fontSize': '14px'}
+                                    ),
+                                ]),
+
+                                # Niveau d'études
+                                html.Div(style=input_container_style, children=[
+                                    html.Label("Niveau d'études (1-5)", style=label_style),
+                                    dcc.Slider(
+                                        id="education", min=1, max=5, value=3, step=1,
+                                        marks={1: '1', 3: '3', 5: '5'},
+                                        tooltip={"placement": "bottom", "always_visible": True},
+                                    ),
+                                ]),
+                                
+                                # Heures sup
+                                html.Div(style=input_container_style, children=[
+                                    html.Label("Heures supplémentaires", style=label_style),
+                                    dcc.RadioItems(
+                                        id="overtime",
+                                        options=[{"label": " Non", "value": "No"}, {"label": " Oui", "value": "Yes"}],
+                                        value="No", inline=True,
+                                        style={'display': 'flex', 'gap': '20px', 'color': TEXT_BODY, 'fontWeight': '500'}
+                                    ),
+                                ]),
+                                
+                                # Déplacements
+                                html.Div(style=input_container_style, children=[
+                                    html.Label("Déplacements professionnels", style=label_style),
+                                    dcc.Dropdown(
+                                        id="businesstravel",
+                                        options=[
+                                            {"label": "Aucun", "value": "Non-Travel"},
+                                            {"label": "Rares", "value": "Travel_Rarely"},
+                                            {"label": "Fréquents", "value": "Travel_Frequently"},
+                                        ],
+                                        value="Non-Travel",
+                                        clearable=False,
+                                        style={'border': 'none', 'borderRadius': '8px', 'background': 'white'}
+                                    ),
+                                ]),
+
+                                # Genre
+                                html.Div(style=input_container_style, children=[
+                                    html.Label("Genre", style=label_style),
+                                    dcc.RadioItems(
+                                        id="gender",
+                                        options=[{"label": " Homme", "value": "Male"}, {"label": " Femme", "value": "Female"}],
+                                        value="Male", inline=True,
+                                        style={'display': 'flex', 'gap': '20px', 'color': TEXT_BODY, 'fontWeight': '500'}
+                                    ),
+                                ]),
+                                
+                                # Situation familiale
+                                html.Div(style=input_container_style, children=[
+                                    html.Label("Situation familiale", style=label_style),
+                                    dcc.Dropdown(
                                         id="maritalstatus",
                                         options=[
                                             {"label": "Célibataire", "value": "Single"},
@@ -98,189 +249,170 @@ app.layout = html.Div(
                                             {"label": "Divorcé(e)", "value": "Divorced"},
                                         ],
                                         value="Single",
+                                        clearable=False,
+                                        style={'border': 'none', 'borderRadius': '8px', 'background': 'white'}
                                     ),
-                                ),
-                                field_block(
-                                    "Niveau d'études",
-                                    "Niveau de formation (1 à 5).",
-                                    dcc.Input(id="education", type="number", value=3, min=1, max=5, style=input_style),
-                                ),
-                            ],
-                        ),
-                        section(
-                            "Poste et conditions",
-                            [
-                                field_block(
-                                    "Département",
-                                    "Département d'affectation.",
-                                    dropdown_control(
-                                        id="department",
-                                        options=[
-                                            {"label": "Ventes", "value": "Sales"},
-                                            {"label": "Recherche & Développement", "value": "Research & Development"},
-                                            {"label": "Ressources Humaines", "value": "Human Resources"},
-                                        ],
-                                        value="Research & Development",
-                                    ),
-                                ),
-                                field_block(
-                                    "Distance domicile-travail",
-                                    "Distance en kilomètres.",
-                                    dcc.Input(id="distance", type="number", value=10, min=0, style=input_style),
-                                ),
-                                field_block(
-                                    "Expérience professionnelle",
-                                    "Années d'expérience totale.",
-                                    dcc.Input(id="total_working_years", type="number", value=5, min=0, style=input_style),
-                                ),
-                                field_block(
-                                    "Déplacements professionnels",
-                                    "Fréquence des trajets professionnels.",
-                                    dropdown_control(
-                                        id="businesstravel",
-                                        options=[
-                                            {"label": "Aucun déplacement", "value": "Non-Travel"},
-                                            {"label": "Déplacements rares", "value": "Travel_Rarely"},
-                                            {"label": "Déplacements fréquents", "value": "Travel_Frequently"},
-                                        ],
-                                        value="Non-Travel",
-                                    ),
-                                ),
-                            ],
-                        ),
-                        section(
-                            "Rémunération",
-                            [
-                                field_block(
-                                    "Salaire mensuel",
-                                    "Revenu mensuel brut en euros.",
-                                    dcc.Input(id="monthly_income", type="number", value=5000, min=0, style=input_style),
-                                ),
-                                field_block(
-                                    "Heures supplémentaires",
-                                    "L'employé effectuera-t-il des heures supplémentaires ?",
-                                    dropdown_control(
-                                        id="overtime",
-                                        options=[{"label": "Non", "value": "No"}, {"label": "Oui", "value": "Yes"}],
-                                        value="No",
-                                    ),
-                                ),
-                            ],
-                        ),
-                        section(
-                            "Résultat",
-                            [
-                                field_block(
-                                    "Risque d'attrition",
-                                    "Cliquez sur 'Analyser' pour obtenir la prédiction.",
-                                    html.Div(id="result", style={"color": "#f8fafc", "fontWeight": "700", "minHeight": "100px"}),
-                                ),
-                            ],
-                        ),
-                    ],
-                ),
+                                ]),
 
-                html.Div(
-                    style={"marginTop": "18px", "display": "flex", "justifyContent": "flex-end"},
-                    children=[
-                        html.Button(
-                            "Analyser le risque",
-                            id="btn",
-                            n_clicks=0,
-                            style={
-                                "minWidth": "240px",
-                                "padding": "12px 18px",
-                                "background": "#b91c1c",
-                                "color": "white",
-                                "border": "none",
-                                "borderRadius": "10px",
-                                "fontWeight": "700",
-                                "cursor": "pointer",
-                                "fontSize": "16px",
-                            },
+                                # Salaire mensuel
+                                html.Div(style=input_container_style, children=[
+                                    html.Label("Salaire mensuel (DH)", style=label_style),
+                                    dcc.Slider(
+                                        id="monthly_income", min=1000, max=50000, value=5000, step=500,
+                                        marks={1000: '1k', 10000: '10k', 25000: '25k', 50000: '50k'},
+                                        tooltip={"placement": "bottom", "always_visible": True},
+                                    ),
+                                ]),
+                            ]
                         ),
-                    ],
-                ),
 
-                html.Hr(style={"marginTop": "20px", "borderColor": "rgba(255,255,255,0.06)"}),
-            ],
-        )
+                        # --- COLONNE DROITE : VISUALISATION ---
+                        html.Div(
+                            children=[
+                                
+                                # CERCLE DE RISQUE
+                                html.Div(
+                                    style={**card_style, 'marginBottom': '30px', 'textAlign': 'center'},
+                                    children=[
+                                        html.H3("Niveau de Risque", style={'color': TEXT_HEADER, 'marginTop': 0, 'marginBottom': '10px', 'fontSize': '18px'}),
+                                        dcc.Graph(id="risk-donut-chart", style={'height': '350px'}, config={'displayModeBar': False}),
+                                        html.Div(id="risk-level-badge", style={'marginTop': '10px'})
+                                    ]
+                                ),
+                                
+                                # BLOC SALAIRE AFFICHÉ
+                                html.Div(
+                                    style=card_style,
+                                    children=[
+                                        html.H3("Simulation de Rémunération", style={'color': TEXT_HEADER, 'marginTop': 0, 'marginBottom': '20px', 'fontSize': '18px'}),
+                                        
+                                        html.Div(
+                                            style={'background': BRAND_COLOR, 'borderRadius': '16px', 'padding': '20px', 
+                                                   'color': 'white', 'textAlign': 'center', 'marginBottom': '20px',
+                                                   'boxShadow': shadow_salary},
+                                            children=[
+                                                html.Div(id="salary-display", style={'fontSize': '32px', 'fontWeight': '800'}),
+                                                html.Div("DH / mois", style={'fontSize': '12px', 'opacity': '0.8', 'marginTop': '4px'}),
+                                            ]
+                                        ),
+                                    ]
+                                ),
+                                
+                                # KPI GRID
+                                html.Div(
+                                    style={'display': 'grid', 'gridTemplateColumns': 'repeat(3, 1fr)', 'gap': '15px', 'marginTop': '30px'},
+                                    children=[
+                                        html.Div(style=kpi_style, children=[
+                                            html.Div("Âge actuel", style={'color': TEXT_BODY, 'fontSize': '12px'}),
+                                            html.Div(id="metric-age", style={'color': TEXT_HEADER, 'fontSize': '24px', 'fontWeight': '700'})
+                                        ]),
+                                        html.Div(style=kpi_style, children=[
+                                            html.Div("Expérience", style={'color': TEXT_BODY, 'fontSize': '12px'}),
+                                            html.Div(id="metric-exp", style={'color': TEXT_HEADER, 'fontSize': '24px', 'fontWeight': '700'})
+                                        ]),
+                                        html.Div(style=kpi_style, children=[
+                                            html.Div("Distance", style={'color': TEXT_BODY, 'fontSize': '12px'}),
+                                            html.Div(id="metric-dist", style={'color': TEXT_HEADER, 'fontSize': '24px', 'fontWeight': '700'})
+                                        ]),
+                                    ]
+                                ),
+                            ]
+                        ),
+                    ]
+                ),
+            ]
+        ),
+    ]
+)
+
+
+# --- CALLBACK POUR MISE À JOUR EN TEMPS RÉEL ---
+@callback(
+    [
+        Output("risk-donut-chart", "figure"),
+        Output("salary-display", "children"),
+        Output("risk-level-badge", "children"),
+        Output("risk-level-badge", "style"),
+        Output("metric-age", "children"),
+        Output("metric-exp", "children"),
+        Output("metric-dist", "children"),
+    ],
+    [
+        Input("age", "value"),
+        Input("gender", "value"),
+        Input("maritalstatus", "value"),
+        Input("distance", "value"),
+        Input("total_working_years", "value"),
+        Input("monthly_income", "value"),
+        Input("education", "value"),
+        Input("overtime", "value"),
+        Input("businesstravel", "value"),
     ],
 )
-
-@app.callback(
-    Output("result", "children"),
-    Input("btn", "n_clicks"),
-    State("age", "value"),
-    State("gender", "value"),
-    State("maritalstatus", "value"),
-    State("education", "value"),
-    State("department", "value"),
-    State("distance", "value"),
-    State("total_working_years", "value"),
-    State("monthly_income", "value"),
-    State("businesstravel", "value"),
-    State("overtime", "value"),
-)
-def run_simulation(
-    n,
-    age,
-    gender,
-    maritalstatus,
-    education,
-    department,
-    distance,
-    total_working_years,
-    monthly_income,
-    businesstravel,
-    overtime,
-):
-    if n == 0:
-        return "Remplissez tous les champs et cliquez sur « Analyser le risque »."
-
+def update_dashboard(age, gender, maritalstatus, distance, total_working_years, monthly_income, education, overtime, businesstravel):
+    # Préparer les données
     data = {
-        "AGE": age or 35,
+        "AGE": age,
         "GENDER": gender,
         "MARITALSTATUS": maritalstatus,
-        "EDUCATION": education or 3,
-        "DEPARTMENT": department,
-        "DISTANCEFROMHOME": distance or 10,
-        "TOTALWORKINGYEARS": total_working_years or 5,
-        "MONTHLYINCOME": monthly_income or 5000,
-        "BUSINESSTRAVEL": businesstravel,
+        "DISTANCEFROMHOME": distance,
+        "TOTALWORKINGYEARS": total_working_years,
+        "MONTHLYINCOME": monthly_income,
+        "EDUCATION": education,
         "OVERTIME": overtime,
+        "BUSINESSTRAVEL": businesstravel,
     }
 
+    base_badge_style = {
+        'fontSize': '14px', 'fontWeight': '700', 'textAlign': 'center', 
+        'padding': '10px', 'borderRadius': '10px'
+    }
+
+    # Prédiction
     try:
-        res = predict_risk(model, data)
-        risk_score = res.get("risk_score", 0)
-        risk_percent = risk_score * 100 if risk_score <= 1 else risk_score
-
-        # Déterminer le niveau de risque et la couleur
-        if risk_percent < 30:
-            color = "#4ade80"  # Vert
-            level = "TRÈS FAIBLE"
-            icon = "✓"
-            verdict = f"Excellent ! Ce candidat a un risque très faible de départ ({risk_percent:.1f}%)."
-        elif risk_percent < 50:
-            color = "#fbbf24"  # Orange
-            level = "MODÉRÉ"
-            icon = "⚠️"
-            verdict = f"Attention : Ce candidat a un risque modéré de départ ({risk_percent:.1f}%). À surveiller."
+        if model:
+            res = predict_risk(model, data)
+            risk_score = res.get("risk_score", 0.0)
+            risk_percent = risk_score * 100
         else:
-            color = "#f87171"  # Rouge
-            level = "ÉLEVÉ"
-            icon = "⛔"
-            verdict = f"Danger : Ce candidat risque probablement de quitter l'entreprise ({risk_percent:.1f}%)."
+            # Mode démo
+            risk_percent = (distance * 0.5 + (40-total_working_years)*0.5 + (monthly_income/1000)*-0.1) + 15
+            risk_percent = max(min(risk_percent, 95), 5)
 
-        return html.Div([
-            html.Div(f"{risk_percent:.1f}%", style={"fontSize": "56px", "fontWeight": "800", "color": color, "marginBottom": "8px"}),
-            html.Div(f"{icon} Risque {level}", style={"fontSize": "20px", "fontWeight": "700", "color": color, "marginBottom": "12px"}),
-            html.Div(verdict, style={"marginTop": "10px", "fontSize": "15px", "lineHeight": "1.5"}),
-            html.Div(f"Classe prédite : {res.get('prediction', 'N/A')}", style={"marginTop": "14px", "color": "#cbd5e1", "fontSize": "13px"})
-        ])
+        # Déterminer le niveau
+        if risk_percent < 30:
+            level = "Niveau de risque : FAIBLE"
+            level_style = {**base_badge_style, 'background': 'rgba(22, 163, 74, 0.1)', 'color': SUCCESS_COLOR}
+        elif risk_percent < 50:
+            level = "Niveau de risque : MODÉRÉ"
+            level_style = {**base_badge_style, 'background': 'rgba(217, 119, 6, 0.1)', 'color': WARNING_COLOR}
+        else:
+            level = "Niveau de risque : ÉLEVÉ"
+            level_style = {**base_badge_style, 'background': 'rgba(220, 38, 36, 0.1)', 'color': DANGER_COLOR}
+
+        donut_fig = create_risk_donut(risk_percent)
+        
+        return [
+            donut_fig,
+            f"{monthly_income:,.0f}",
+            level,
+            level_style,
+            f"{age} ans",
+            f"{total_working_years} ans",
+            f"{distance} km",
+        ]
+
     except Exception as e:
-        return html.Div(f"Erreur lors de la prédiction : {str(e)}", style={"color": "#fca5a5"})
+        error_fig = go.Figure()
+        error_fig.add_annotation(text="Erreur", x=0.5, y=0.5, showarrow=False)
+        return [
+            error_fig,
+            "Erreur",
+            f"Erreur: {str(e)}",
+            {**base_badge_style, 'background': 'rgba(220, 38, 36, 0.1)', 'color': DANGER_COLOR},
+            "-", "-", "-",
+        ]
+
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=8000, debug=False)
+    app.run(host="0.0.0.0", port=8000, debug=True)
