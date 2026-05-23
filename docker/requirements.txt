@@ -24,3 +24,5 @@ python-dotenv==1.0.1
 requests==2.32.3
 griffe==0.38.0
 setuptools<70.0.0
+dice-ml
+dash-bootstrap-components

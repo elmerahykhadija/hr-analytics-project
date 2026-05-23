@@ -80,6 +80,13 @@ label_style = {
     "display": "block",
 }
 
+# --- STYLE POUR LA COLONNE FLOTTANTE ---
+sticky_sidebar = {
+    "position": "sticky",
+    "top": "20px",
+    "zIndex": 1000,
+    "alignSelf": "start"
+}
 
 # --- FONCTION POUR CRÉER LE CERCLE DE RISQUE ---
 def create_risk_donut(risk_percent):
@@ -152,7 +159,13 @@ app.layout = html.Div(
             style={'maxWidth': '1200px', 'margin': '0 auto'},
             children=[
                 html.Div(
-                    style={'display': 'grid', 'gridTemplateColumns': '1fr 1fr', 'gap': '30px'},
+                    style={
+                        'display': 'grid', 
+                        'gridTemplateColumns': '1fr 1fr', 
+                        'gap': '30px',
+                        'gridTemplateRows': 'auto',
+                        'alignItems': 'start',
+                    },
                     children=[
                         
                         # --- COLONNE GAUCHE : PARAMÈTRES ---
@@ -161,113 +174,161 @@ app.layout = html.Div(
                             children=[
                                 html.H3("Profil du Collaborateur", style={'color': TEXT_HEADER, 'marginTop': 0, 'marginBottom': '20px', 'fontSize': '18px'}),
                                 
-                                # Âge
-                                html.Div(style=input_container_style, children=[
-                                    html.Label("Âge", style=label_style),
-                                    dcc.Slider(
-                                        id="age", min=18, max=70, value=35, step=1,
-                                        marks={18: '18', 35: '35', 50: '50', 70: '70'},
-                                        tooltip={"placement": "bottom", "always_visible": True},
-                                    ),
+                                # Section Informations Personnelles
+                                html.Div(style={'marginBottom': '30px'}, children=[
+                                    html.Div(style={'fontSize': '13px', 'fontWeight': '700', 'color': TEXT_HEADER, 'marginBottom': '15px'}, children="👤 Informations Personnelles"),
+                                    
+                                    html.Div(style=input_container_style, children=[
+                                        html.Label("Âge (années)", style=label_style),
+                                        dcc.Slider(id="age", min=18, max=70, value=35, step=1,
+                                            marks={18: '18', 35: '35', 50: '50', 70: '70'},
+                                            tooltip={"placement": "bottom", "always_visible": True}),
+                                    ]),
+                                    
+                                    html.Div(style=input_container_style, children=[
+                                        html.Label("Genre", style=label_style),
+                                        dcc.RadioItems(id="gender",
+                                            options=[{"label": " Homme", "value": "Male"}, {"label": " Femme", "value": "Female"}],
+                                            value="Male", inline=True,
+                                            style={'display': 'flex', 'gap': '20px', 'color': TEXT_BODY, 'fontWeight': '500'}),
+                                    ]),
+                                    
+                                    html.Div(style=input_container_style, children=[
+                                        html.Label("Situation familiale", style=label_style),
+                                        dcc.Dropdown(id="maritalstatus",
+                                            options=[
+                                                {"label": "Célibataire", "value": "Single"},
+                                                {"label": "Marié(e)", "value": "Married"},
+                                                {"label": "Divorcé(e)", "value": "Divorced"},
+                                            ],
+                                            value="Single", clearable=False,
+                                            style={'border': 'none', 'borderRadius': '8px', 'background': 'white'}),
+                                    ]),
+                                    
+                                    html.Div(style=input_container_style, children=[
+                                        html.Label("Niveau d'études (1-5)", style=label_style),
+                                        dcc.Slider(id="education", min=1, max=5, value=3, step=1,
+                                            marks={1: '1', 3: '3', 5: '5'},
+                                            tooltip={"placement": "bottom", "always_visible": True}),
+                                    ]),
+                                    
+                                    html.Div(style=input_container_style, children=[
+                                        html.Label("Distance domicile-travail (km)", style=label_style),
+                                        dcc.Input(id="distance", type="number", value=10, min=0, max=100, step=1,
+                                            style={'width': '100%', 'padding': '10px', 'border': 'none', 'borderRadius': '8px', 'background': 'white', 'fontSize': '14px'}),
+                                    ]),
                                 ]),
 
-                                # Expérience totale
-                                html.Div(style=input_container_style, children=[
-                                    html.Label("Expérience totale (années)", style=label_style),
-                                    dcc.Slider(
-                                        id="total_working_years", min=0, max=40, value=5, step=1,
-                                        marks={0: '0', 10: '10', 20: '20', 40: '40'},
-                                        tooltip={"placement": "bottom", "always_visible": True},
-                                    ),
-                                ]),
-                                
-                                # Distance
-                                html.Div(style=input_container_style, children=[
-                                    html.Label("Distance domicile-travail (km)", style=label_style),
-                                    dcc.Input(
-                                        id="distance", type="number", value=10, min=0, max=100, step=1,
-                                        style={'width': '100%', 'padding': '10px', 'border': 'none', 'borderRadius': '8px', 'background': 'white', 'fontSize': '14px'}
-                                    ),
-                                ]),
-
-                                # Niveau d'études
-                                html.Div(style=input_container_style, children=[
-                                    html.Label("Niveau d'études (1-5)", style=label_style),
-                                    dcc.Slider(
-                                        id="education", min=1, max=5, value=3, step=1,
-                                        marks={1: '1', 3: '3', 5: '5'},
-                                        tooltip={"placement": "bottom", "always_visible": True},
-                                    ),
-                                ]),
-                                
-                                # Heures sup
-                                html.Div(style=input_container_style, children=[
-                                    html.Label("Heures supplémentaires", style=label_style),
-                                    dcc.RadioItems(
-                                        id="overtime",
-                                        options=[{"label": " Non", "value": "No"}, {"label": " Oui", "value": "Yes"}],
-                                        value="No", inline=True,
-                                        style={'display': 'flex', 'gap': '20px', 'color': TEXT_BODY, 'fontWeight': '500'}
-                                    ),
-                                ]),
-                                
-                                # Déplacements
-                                html.Div(style=input_container_style, children=[
-                                    html.Label("Déplacements professionnels", style=label_style),
-                                    dcc.Dropdown(
-                                        id="businesstravel",
-                                        options=[
-                                            {"label": "Aucun", "value": "Non-Travel"},
-                                            {"label": "Rares", "value": "Travel_Rarely"},
-                                            {"label": "Fréquents", "value": "Travel_Frequently"},
-                                        ],
-                                        value="Non-Travel",
-                                        clearable=False,
-                                        style={'border': 'none', 'borderRadius': '8px', 'background': 'white'}
-                                    ),
+                                # Section Informations Professionnelles
+                                html.Div(style={'marginBottom': '30px'}, children=[
+                                    html.Div(style={'fontSize': '13px', 'fontWeight': '700', 'color': TEXT_HEADER, 'marginBottom': '15px'}, children="🏢 Informations Professionnelles"),
+                                    
+                                    html.Div(style=input_container_style, children=[
+                                        html.Label("Niveau hiérarchique (1-5)", style=label_style),
+                                        dcc.Slider(id="job_level", min=1, max=5, value=2, step=1,
+                                            marks={1: '1', 3: '3', 5: '5'},
+                                            tooltip={"placement": "bottom", "always_visible": True}),
+                                    ]),
+                                    
+                                    html.Div(style=input_container_style, children=[
+                                        html.Label("Déplacements professionnels", style=label_style),
+                                        dcc.Dropdown(id="businesstravel",
+                                            options=[
+                                                {"label": "Aucun", "value": "Non-Travel"},
+                                                {"label": "Rares", "value": "Travel_Rarely"},
+                                                {"label": "Fréquents", "value": "Travel_Frequently"},
+                                            ],
+                                            value="Non-Travel", clearable=False,
+                                            style={'border': 'none', 'borderRadius': '8px', 'background': 'white'}),
+                                    ]),
+                                    
+                                    html.Div(style=input_container_style, children=[
+                                        html.Label("Heures supplémentaires", style=label_style),
+                                        dcc.RadioItems(id="overtime",
+                                            options=[{"label": " Non", "value": "No"}, {"label": " Oui", "value": "Yes"}],
+                                            value="No", inline=True,
+                                            style={'display': 'flex', 'gap': '20px', 'color': TEXT_BODY, 'fontWeight': '500'}),
+                                    ]),
                                 ]),
 
-                                # Genre
-                                html.Div(style=input_container_style, children=[
-                                    html.Label("Genre", style=label_style),
-                                    dcc.RadioItems(
-                                        id="gender",
-                                        options=[{"label": " Homme", "value": "Male"}, {"label": " Femme", "value": "Female"}],
-                                        value="Male", inline=True,
-                                        style={'display': 'flex', 'gap': '20px', 'color': TEXT_BODY, 'fontWeight': '500'}
-                                    ),
-                                ]),
-                                
-                                # Situation familiale
-                                html.Div(style=input_container_style, children=[
-                                    html.Label("Situation familiale", style=label_style),
-                                    dcc.Dropdown(
-                                        id="maritalstatus",
-                                        options=[
-                                            {"label": "Célibataire", "value": "Single"},
-                                            {"label": "Marié(e)", "value": "Married"},
-                                            {"label": "Divorcé(e)", "value": "Divorced"},
-                                        ],
-                                        value="Single",
-                                        clearable=False,
-                                        style={'border': 'none', 'borderRadius': '8px', 'background': 'white'}
-                                    ),
+                                # Section Rémunération & Expérience
+                                html.Div(style={'marginBottom': '30px'}, children=[
+                                    html.Div(style={'fontSize': '13px', 'fontWeight': '700', 'color': TEXT_HEADER, 'marginBottom': '15px'}, children="💰 Rémunération & Expérience"),
+                                    
+                                    html.Div(style=input_container_style, children=[
+                                        html.Label("Salaire mensuel (DH)", style=label_style),
+                                        dcc.Slider(id="monthly_income", min=1000, max=50000, value=5000, step=500,
+                                            marks={1000: '1k', 10000: '10k', 25000: '25k', 50000: '50k'},
+                                            tooltip={"placement": "bottom", "always_visible": True}),
+                                    ]),
+                                    
+                                    html.Div(style=input_container_style, children=[
+                                        html.Label("Expérience totale (années)", style=label_style),
+                                        dcc.Slider(id="total_working_years", min=0, max=40, value=5, step=1,
+                                            marks={0: '0', 10: '10', 20: '20', 40: '40'},
+                                            tooltip={"placement": "bottom", "always_visible": True}),
+                                    ]),
+                                    
+                                    html.Div(style=input_container_style, children=[
+                                        html.Label("Nombre d'entreprises travaillées", style=label_style),
+                                        dcc.Slider(id="num_companies_worked", min=1, max=10, value=2, step=1,
+                                            marks={1: '1', 3: '3', 5: '5', 10: '10'},
+                                            tooltip={"placement": "bottom", "always_visible": True}),
+                                    ]),
                                 ]),
 
-                                # Salaire mensuel
-                                html.Div(style=input_container_style, children=[
-                                    html.Label("Salaire mensuel (DH)", style=label_style),
-                                    dcc.Slider(
-                                        id="monthly_income", min=1000, max=50000, value=5000, step=500,
-                                        marks={1000: '1k', 10000: '10k', 25000: '25k', 50000: '50k'},
-                                        tooltip={"placement": "bottom", "always_visible": True},
-                                    ),
+                                # Section Satisfaction & Engagement
+                                html.Div(children=[
+                                    html.Div(style={'fontSize': '13px', 'fontWeight': '700', 'color': TEXT_HEADER, 'marginBottom': '15px'}, children="⭐ Satisfaction & Engagement"),
+                                    
+                                    html.Div(style=input_container_style, children=[
+                                        html.Label("Satisfaction au travail (1-4)", style=label_style),
+                                        dcc.Slider(id="job_satisfaction", min=1, max=4, value=2, step=1,
+                                            marks={1: '1', 2: '2', 3: '3', 4: '4'},
+                                            tooltip={"placement": "bottom", "always_visible": True}),
+                                    ]),
+                                    
+                                    html.Div(style=input_container_style, children=[
+                                        html.Label("Satisfaction environnement (1-4)", style=label_style),
+                                        dcc.Slider(id="environment_satisfaction", min=1, max=4, value=2, step=1,
+                                            marks={1: '1', 2: '2', 3: '3', 4: '4'},
+                                            tooltip={"placement": "bottom", "always_visible": True}),
+                                    ]),
+                                    
+                                    html.Div(style=input_container_style, children=[
+                                        html.Label("Satisfaction relations (1-4)", style=label_style),
+                                        dcc.Slider(id="relationship_satisfaction", min=1, max=4, value=2, step=1,
+                                            marks={1: '1', 2: '2', 3: '3', 4: '4'},
+                                            tooltip={"placement": "bottom", "always_visible": True}),
+                                    ]),
+                                    
+                                    html.Div(style=input_container_style, children=[
+                                        html.Label("Implication au travail (1-4)", style=label_style),
+                                        dcc.Slider(id="job_involvement", min=1, max=4, value=2, step=1,
+                                            marks={1: '1', 2: '2', 3: '3', 4: '4'},
+                                            tooltip={"placement": "bottom", "always_visible": True}),
+                                    ]),
+                                    
+                                    html.Div(style=input_container_style, children=[
+                                        html.Label("Équilibre vie pro/perso (1-4)", style=label_style),
+                                        dcc.Slider(id="work_life_balance", min=1, max=4, value=2, step=1,
+                                            marks={1: '1', 2: '2', 3: '3', 4: '4'},
+                                            tooltip={"placement": "bottom", "always_visible": True}),
+                                    ]),
+                                    
+                                    html.Div(style=input_container_style, children=[
+                                        html.Label("Évaluation performance (3-4)", style=label_style),
+                                        dcc.Slider(id="performance_rating", min=3, max=4, value=3, step=1,
+                                            marks={3: '3', 4: '4'},
+                                            tooltip={"placement": "bottom", "always_visible": True}),
+                                    ]),
                                 ]),
                             ]
                         ),
 
-                        # --- COLONNE DROITE : VISUALISATION ---
+                        # --- COLONNE DROITE : VISUALISATION (STICKY) ---
                         html.Div(
+                            style=sticky_sidebar,
                             children=[
                                 
                                 # CERCLE DE RISQUE
@@ -347,9 +408,21 @@ app.layout = html.Div(
         Input("education", "value"),
         Input("overtime", "value"),
         Input("businesstravel", "value"),
+        Input("job_level", "value"),
+        Input("num_companies_worked", "value"),
+        Input("job_satisfaction", "value"),
+        Input("environment_satisfaction", "value"),
+        Input("relationship_satisfaction", "value"),
+        Input("job_involvement", "value"),
+        Input("work_life_balance", "value"),
+        Input("performance_rating", "value"),
     ],
 )
-def update_dashboard(age, gender, maritalstatus, distance, total_working_years, monthly_income, education, overtime, businesstravel):
+def update_dashboard(age, gender, maritalstatus, distance, total_working_years, monthly_income, education, 
+                     overtime, businesstravel, job_level, num_companies_worked, job_satisfaction, 
+                     environment_satisfaction, relationship_satisfaction, job_involvement, 
+                     work_life_balance, performance_rating):
+    
     # Préparer les données
     data = {
         "AGE": age,
@@ -361,6 +434,14 @@ def update_dashboard(age, gender, maritalstatus, distance, total_working_years, 
         "EDUCATION": education,
         "OVERTIME": overtime,
         "BUSINESSTRAVEL": businesstravel,
+        "JOBLEVEL": job_level,
+        "NUMCOMPANIESWORKED": num_companies_worked,
+        "JOBSATISFACTION": job_satisfaction,
+        "ENVIRONMENTSATISFACTION": environment_satisfaction,
+        "RELATIONSHIPSATISFACTION": relationship_satisfaction,
+        "JOBINVOLVEMENT": job_involvement,
+        "WORKLIFEBALANCE": work_life_balance,
+        "PERFORMANCERATING": performance_rating,
     }
 
     base_badge_style = {
@@ -368,18 +449,14 @@ def update_dashboard(age, gender, maritalstatus, distance, total_working_years, 
         'padding': '10px', 'borderRadius': '10px'
     }
 
-    # Prédiction
     try:
         if model:
-            res = predict_risk(model, data)
+            res = predict_risk(data)
             risk_score = res.get("risk_score", 0.0)
             risk_percent = risk_score * 100
         else:
-            # Mode démo
-            risk_percent = (distance * 0.5 + (40-total_working_years)*0.5 + (monthly_income/1000)*-0.1) + 15
-            risk_percent = max(min(risk_percent, 95), 5)
+            risk_percent = 50
 
-        # Déterminer le niveau
         if risk_percent < 30:
             level = "Niveau de risque : FAIBLE"
             level_style = {**base_badge_style, 'background': 'rgba(22, 163, 74, 0.1)', 'color': SUCCESS_COLOR}

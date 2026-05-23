@@ -15,36 +15,41 @@ load_dotenv()
 mlflow.set_tracking_uri("http://mlflow:5000")
 mlflow.set_experiment("HR_Attrition_Prediction")
 
-# Colonnes réelles disponibles dans HR_EMPLOYEE_ENCODED (one-hot encodées)
+# === FEATURES SIMPLIFIÉES ===
 REQUIRED_FEATURES = [
-    # Numériques
-    "AGE",
-    "DISTANCEFROMHOME",
-    "EDUCATION",
+    # ========== NUMÉRIQUES ==========
+    # Informations Personnelles
+    "AGE", "DISTANCEFROMHOME", "EDUCATION",
+    
+    # Informations Professionnelles
+    "JOBLEVEL",
+    
+    # Rémunération
     "MONTHLYINCOME",
-    "TOTALWORKINGYEARS",
-    # One-hot encodées - Business Travel
-    "BUSINESSTRAVEL_RARELY",
-    "BUSINESSTRAVEL_FREQUENTLY",
-    "BUSINESSTRAVEL_NONTRAVEL",
-    # One-hot encodées - Department
-    "DEPARTMENT_SALES",
-    "DEPARTMENT_RND",
-    "DEPARTMENT_HR",
-    # One-hot encodées - Gender
-    "GENDER_MALE",
-    "GENDER_FEMALE",
-    # One-hot encodées - Marital Status
-    "MARITALSTATUS_SINGLE",
-    "MARITALSTATUS_MARRIED",
-    "MARITALSTATUS_DIVORCED",
-    # One-hot encodées - Overtime
-    "OVERTIME_YES",
-    "OVERTIME_NO",
+    
+    # Expérience
+    "TOTALWORKINGYEARS", "NUMCOMPANIESWORKED",
+    
+    # Satisfaction & Engagement
+    "JOBSATISFACTION", "ENVIRONMENTSATISFACTION", "RELATIONSHIPSATISFACTION",
+    "JOBINVOLVEMENT", "WORKLIFEBALANCE", "PERFORMANCERATING",
+    
+    # ========== ONE-HOT ENCODÉES ==========
+    # Gender
+    "GENDER_MALE", "GENDER_FEMALE",
+    
+    # MaritalStatus
+    "MARITALSTATUS_SINGLE", "MARITALSTATUS_MARRIED", "MARITALSTATUS_DIVORCED",
+    
+    # BusinessTravel
+    "BUSINESSTRAVEL_NONTRAVEL", "BUSINESSTRAVEL_TRAVEL_RARELY", "BUSINESSTRAVEL_TRAVEL_FREQUENTLY",
+    
+    # OverTime
+    "OVERTIME_NO", "OVERTIME_YES",
 ]
 
 def train_model():
-    # 2. Récupération des données depuis Snowflake (Table GOLD)
+    # 2. Récupération des données depuis Snowflake
     ctx = connect(
         user=os.getenv('SNOWFLAKE_USER'),
         password=os.getenv('SNOWFLAKE_PASS'),
@@ -59,16 +64,34 @@ def train_model():
     df = pd.read_sql(query, ctx)
     ctx.close()
 
-    # 3. Sélectionner uniquement les features nécessaires + la target
-    df = df[REQUIRED_FEATURES + ['ATTRITION']]
+    print("\n=== DONNÉES BRUTES ===")
+    print(f"Shape: {df.shape}")
+    print(f"Colonnes disponibles: {len(df.columns)}")
     
-    print(f"Colonnes utilisées pour l'entraînement ({len(REQUIRED_FEATURES)}):")
-    print(REQUIRED_FEATURES)
-    print(f"Dataset shape: {df.shape}")
+    # 3. Filtrer les colonnes valides dans la table réelle
+    missing_features = [f for f in REQUIRED_FEATURES if f not in df.columns]
+    if missing_features:
+        print(f"\n⚠️ ATTENTION - Colonnes manquantes ({len(missing_features)}):")
+        print(missing_features)
+        print("\nContinue avec les colonnes disponibles...")
+        REQUIRED_FEATURES_ACTUAL = [f for f in REQUIRED_FEATURES if f in df.columns]
+    else:
+        REQUIRED_FEATURES_ACTUAL = REQUIRED_FEATURES
+    
+    print(f"\n✓ Features à utiliser ({len(REQUIRED_FEATURES_ACTUAL)}):")
+    print(REQUIRED_FEATURES_ACTUAL)
+    
+    # 4. Sélectionner les features + target
+    if 'ATTRITION' not in df.columns:
+        raise KeyError("La colonne 'ATTRITION' n'existe pas!")
+    
+    df = df[REQUIRED_FEATURES_ACTUAL + ['ATTRITION']]
+    
+    print(f"\nDataset final shape: {df.shape}")
+    print(f"Attrition distribution:\n{df['ATTRITION'].value_counts()}")
 
-    # 4. Préparation Features/Target
+    # 5. Préparation Features/Target
     X = df.drop(columns=['ATTRITION'])
-    # Encodage de la target Attrition (Yes -> 1, No -> 0)
     y = df['ATTRITION'].apply(lambda x: 1 if x == 'Yes' else 0)
 
     X_train, X_test, y_train, y_test = train_test_split(
@@ -103,6 +126,7 @@ def train_model():
     )
 
     with mlflow.start_run():
+        print("\n🚀 Entraînement en cours...")
         grid.fit(X_train, y_train)
 
         best_model = grid.best_estimator_
@@ -117,8 +141,8 @@ def train_model():
             'importance': best_model.feature_importances_
         }).sort_values('importance', ascending=False)
         
-        print("\n--- Feature Importance ---")
-        print(feature_importance)
+        print("\n--- Top 15 Features ---")
+        print(feature_importance.head(15))
 
         mlflow.log_params(grid.best_params_)
         mlflow.log_metric("best_cv_f1", grid.best_score_)
@@ -134,7 +158,7 @@ def train_model():
         client = MlflowClient()
         model_name = "RF_Attrition_v1"
 
-        # 1. Récupérer la meilleure performance précédente (Production)
+        # Récupérer la meilleure performance précédente
         try:
             latest_version_info = client.get_latest_versions(model_name, stages=["Production"])
             if latest_version_info:
@@ -145,22 +169,26 @@ def train_model():
         except Exception:
             old_f1 = 0
 
-        # 2. Comparer et Promouvoir
+        # Comparer et Promouvoir
         if f1 > old_f1:
-            print("✓ Nouveau modèle meilleur ! Promotion en PRODUCTION.")
-            new_version = client.get_latest_versions(model_name, stages=["None"])[0].version
-            client.transition_model_version_stage(
-                name=model_name,
-                version=new_version,
-                stage="Production",
-                archive_existing_versions=True
-            )
+            print("\n✓ Nouveau modèle meilleur ! Promotion en PRODUCTION.")
+            try:
+                new_version = client.get_latest_versions(model_name, stages=["None"])[0].version
+                client.transition_model_version_stage(
+                    name=model_name,
+                    version=new_version,
+                    stage="Production",
+                    archive_existing_versions=True
+                )
+            except Exception as e:
+                print(f"⚠️ Impossible de promouvoir: {e}")
         else:
-            print("✗ Le nouveau modèle n'est pas meilleur. On garde l'ancien en Production.")
+            print(f"\n✗ Modèle actuel F1={f1:.4f} n'est pas meilleur que F1={old_f1:.4f}")
 
-        print("\n=== RÉSULTATS ===")
-        print("Meilleurs paramètres:", grid.best_params_)
-        print(f"Accuracy test: {acc:.2f}, F1 test: {f1:.2f}")
+        print("\n=== RÉSULTATS FINAUX ===")
+        print(f"Meilleurs paramètres: {grid.best_params_}")
+        print(f"Accuracy: {acc:.4f}")
+        print(f"F1 Score: {f1:.4f}")
 
 if __name__ == "__main__":
     train_model()
