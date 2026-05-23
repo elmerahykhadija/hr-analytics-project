@@ -1,6 +1,6 @@
 dbt_hr_project/target/
 dbt_hr_project/logs/
 reports/
-*.env
+docker/.env
 venv/
 __pycache__/
