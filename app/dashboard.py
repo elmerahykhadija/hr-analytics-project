@@ -1,9 +1,11 @@
 import dash
-from dash import dcc, html, Input, Output, callback
+from dash import dcc, html, Input, Output, callback, State, ALL
+import dash_bootstrap_components as dbc
 import plotly.graph_objects as go
 from simulation_service import load_model, predict_risk
+from dice import generate_smart_scenarios
 
-app = dash.Dash(__name__)
+app = dash.Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP])
 server = app.server
 
 # Tentative de chargement du modèle
@@ -80,7 +82,6 @@ label_style = {
     "display": "block",
 }
 
-# --- STYLE POUR LA COLONNE FLOTTANTE ---
 sticky_sidebar = {
     "position": "sticky",
     "top": "20px",
@@ -88,11 +89,40 @@ sticky_sidebar = {
     "alignSelf": "start"
 }
 
+# --- BUTTON STYLES ---
+button_primary = {
+    "background": BRAND_COLOR,
+    "color": "white",
+    "border": "none",
+    "padding": "12px 24px",
+    "borderRadius": "12px",
+    "fontWeight": "600",
+    "cursor": "pointer",
+    "fontSize": "14px",
+    "width": "100%",
+    "marginTop": "10px",
+    "transition": "all 0.3s ease"
+}
+
+button_scenario = {
+    "background": "white",
+    "border": f"2px solid {BRAND_COLOR}",
+    "color": BRAND_COLOR,
+    "padding": "12px 16px",
+    "borderRadius": "10px",
+    "fontWeight": "600",
+    "cursor": "pointer",
+    "fontSize": "13px",
+    "marginBottom": "10px",
+    "width": "100%",
+    "textAlign": "left",
+    "transition": "all 0.2s ease"
+}
+
 # --- FONCTION POUR CRÉER LE CERCLE DE RISQUE ---
 def create_risk_donut(risk_percent):
     """Créer un graphique circulaire (donut) avec le pourcentage au centre."""
     
-    # Déterminer la couleur selon le risque
     if risk_percent < 30:
         base_color = SUCCESS_COLOR
     elif risk_percent < 50:
@@ -102,11 +132,10 @@ def create_risk_donut(risk_percent):
     
     colors = [base_color, "#E5E7EB"]
     
-    # Créer le graphique
     fig = go.Figure(data=[go.Pie(
         values=[risk_percent, 100 - risk_percent],
         labels=["Risque", "Sécurisé"],
-        hole=0.75,  # Taille du trou central (effet donut)
+        hole=0.75,
         marker=dict(colors=colors, line=dict(color=BG_CARD, width=2)),
         textinfo='none',
         hoverinfo='label+percent',
@@ -114,7 +143,6 @@ def create_risk_donut(risk_percent):
         sort=False
     )])
     
-    # Ajouter le texte au centre
     fig.add_annotation(
         text=f"{risk_percent:.1f}%",
         x=0.5, y=0.5,
@@ -150,7 +178,7 @@ app.layout = html.Div(
             children=[
                 html.H1("Simulateur d'Attrition", 
                         style={'margin': '0 0 8px 0', 'color': TEXT_HEADER, 'fontSize': '32px', 'fontWeight': '800'}),
-                html.P("Analyse en temps réel du risque de départ de vos collaborateurs",
+                html.P("Analyse en temps réel du risque de départ de vos employés",
                         style={'margin': 0, 'color': TEXT_BODY, 'fontSize': '16px'}),
             ]
         ),
@@ -172,7 +200,7 @@ app.layout = html.Div(
                         html.Div(
                             style=card_style,
                             children=[
-                                html.H3("Profil du Collaborateur", style={'color': TEXT_HEADER, 'marginTop': 0, 'marginBottom': '20px', 'fontSize': '18px'}),
+                                html.H3("Profil de l'employé", style={'color': TEXT_HEADER, 'marginTop': 0, 'marginBottom': '20px', 'fontSize': '18px'}),
                                 
                                 # Section Informations Personnelles
                                 html.Div(style={'marginBottom': '30px'}, children=[
@@ -224,10 +252,17 @@ app.layout = html.Div(
                                     html.Div(style={'fontSize': '13px', 'fontWeight': '700', 'color': TEXT_HEADER, 'marginBottom': '15px'}, children="🏢 Informations Professionnelles"),
                                     
                                     html.Div(style=input_container_style, children=[
-                                        html.Label("Niveau hiérarchique (1-5)", style=label_style),
-                                        dcc.Slider(id="job_level", min=1, max=5, value=2, step=1,
-                                            marks={1: '1', 3: '3', 5: '5'},
-                                            tooltip={"placement": "bottom", "always_visible": True}),
+                                        html.Label("Niveau hiérarchique", style=label_style),
+                                        dcc.Dropdown(id="job_level",
+                                            options=[
+                                                {"label": "1 - Junior", "value": 1},
+                                                {"label": "2 - Senior", "value": 2},
+                                                {"label": "3 - Manager", "value": 3},
+                                                {"label": "4 - Senior Manager", "value": 4},
+                                                {"label": "5 - Directeur", "value": 5},
+                                            ],
+                                            value=2, clearable=False,
+                                            style={'border': 'none', 'borderRadius': '8px', 'background': 'white'}),
                                     ]),
                                     
                                     html.Div(style=input_container_style, children=[
@@ -257,9 +292,8 @@ app.layout = html.Div(
                                     
                                     html.Div(style=input_container_style, children=[
                                         html.Label("Salaire mensuel (DH)", style=label_style),
-                                        dcc.Slider(id="monthly_income", min=1000, max=50000, value=5000, step=500,
-                                            marks={1000: '1k', 10000: '10k', 25000: '25k', 50000: '50k'},
-                                            tooltip={"placement": "bottom", "always_visible": True}),
+                                        dcc.Input(id="monthly_income", type="number", value=5000, min=1000, max=50000, step=100,
+                                            style={'width': '100%', 'padding': '10px', 'border': 'none', 'borderRadius': '8px', 'background': 'white', 'fontSize': '14px'}),
                                     ]),
                                     
                                     html.Div(style=input_container_style, children=[
@@ -273,6 +307,18 @@ app.layout = html.Div(
                                         html.Label("Nombre d'entreprises travaillées", style=label_style),
                                         dcc.Slider(id="num_companies_worked", min=1, max=10, value=2, step=1,
                                             marks={1: '1', 3: '3', 5: '5', 10: '10'},
+                                            tooltip={"placement": "bottom", "always_visible": True}),
+                                    ]),
+                                ]),
+
+                                # Section Télétravail (NOUVEAU)
+                                html.Div(style={'marginBottom': '30px'}, children=[
+                                    html.Div(style={'fontSize': '13px', 'fontWeight': '700', 'color': TEXT_HEADER, 'marginBottom': '15px'}, children="🏠 Télétravail"),
+                                    
+                                    html.Div(style=input_container_style, children=[
+                                        html.Label("Jours de télétravail/semaine (0-5)", style=label_style),
+                                        dcc.Slider(id="telework_days", min=0, max=5, value=0, step=1,
+                                            marks={0: '0', 1: '1', 2: '2', 3: '3', 4: '4', 5: '5'},
                                             tooltip={"placement": "bottom", "always_visible": True}),
                                     ]),
                                 ]),
@@ -331,6 +377,14 @@ app.layout = html.Div(
                             style=sticky_sidebar,
                             children=[
                                 
+                                # BOUTON RECOMMANDATIONS (NOUVEAU)
+                                html.Button(
+                                    "💡 Recommandations",
+                                    id="recommendations-button",
+                                    style=button_primary,
+                                    n_clicks=0
+                                ),
+                                
                                 # CERCLE DE RISQUE
                                 html.Div(
                                     style={**card_style, 'marginBottom': '30px', 'textAlign': 'center'},
@@ -383,8 +437,133 @@ app.layout = html.Div(
                 ),
             ]
         ),
+
+        # --- MODALE RECOMMANDATIONS (NOUVEAU) ---
+        dbc.Modal(
+            [
+                dbc.ModalHeader(
+                    html.Div(
+                        style={'display': 'flex', 'justifyContent': 'space-between', 'alignItems': 'center', 'width': '100%'},
+                        children=[
+                            html.H2("💡 Recommandations pour Réduire le Risque", style={'color': TEXT_HEADER, 'margin': 0, 'fontSize': '20px'}),
+                        ]
+                    ),
+                    close_button=True,
+                ),
+                dbc.ModalBody(
+                    html.Div(id="scenarios-container", style={'maxHeight': '500px', 'overflowY': 'auto'}),
+                ),
+            ],
+            id="recommendations-modal",
+            size="lg",
+            centered=True,
+            is_open=False,
+        ),
+
+        # Store pour les données des scénarios
+        dcc.Store(id='current-scenarios-store'),
     ]
 )
+
+
+# --- CALLBACK POUR OUVRIR/FERMER LA MODALE ---
+@callback(
+    Output("recommendations-modal", "is_open"),
+    [Input("recommendations-button", "n_clicks")],
+    [State("recommendations-modal", "is_open")],
+)
+def toggle_modal(n_clicks, is_open):
+    if n_clicks:
+        return not is_open
+    return is_open
+
+
+# --- CALLBACK POUR GÉNÉRER LES RECOMMANDATIONS ---
+@callback(
+    Output("scenarios-container", "children"),
+    Output("current-scenarios-store", "data"),
+    Input("recommendations-button", "n_clicks"),
+    [
+        State("age", "value"),
+        State("gender", "value"),
+        State("maritalstatus", "value"),
+        State("distance", "value"),
+        State("total_working_years", "value"),
+        State("monthly_income", "value"),
+        State("education", "value"),
+        State("overtime", "value"),
+        State("businesstravel", "value"),
+        State("job_level", "value"),
+        State("num_companies_worked", "value"),
+        State("job_satisfaction", "value"),
+        State("environment_satisfaction", "value"),
+        State("relationship_satisfaction", "value"),
+        State("job_involvement", "value"),
+        State("work_life_balance", "value"),
+        State("performance_rating", "value"),
+        State("telework_days", "value"),
+    ],
+    prevent_initial_call=True,
+)
+def generate_recommendations(n_clicks, age, gender, maritalstatus, distance, total_working_years, monthly_income, 
+                            education, overtime, businesstravel, job_level, num_companies_worked, 
+                            job_satisfaction, environment_satisfaction, relationship_satisfaction, 
+                            job_involvement, work_life_balance, performance_rating, telework_days):
+    
+    if n_clicks is None or n_clicks == 0:
+        return [], {}
+
+    data = {
+        "AGE": age,
+        "GENDER": gender,
+        "MARITALSTATUS": maritalstatus,
+        "DISTANCEFROMHOME": distance,
+        "TOTALWORKINGYEARS": total_working_years,
+        "MONTHLYINCOME": monthly_income,
+        "EDUCATION": education,
+        "OVERTIME": overtime,
+        "BUSINESSTRAVEL": businesstravel,
+        "JOBLEVEL": job_level,
+        "NUMCOMPANIESWORKED": num_companies_worked,
+        "JOBSATISFACTION": job_satisfaction,
+        "ENVIRONMENTSATISFACTION": environment_satisfaction,
+        "RELATIONSHIPSATISFACTION": relationship_satisfaction,
+        "JOBINVOLVEMENT": job_involvement,
+        "WORKLIFEBALANCE": work_life_balance,
+        "PERFORMANCERATING": performance_rating,
+    }
+
+    try:
+        scenarios = generate_smart_scenarios(data)
+        
+        scenarios_elements = []
+        for idx, scenario in enumerate(scenarios):
+            scenarios_elements.append(
+                html.Div(
+                    style={'marginBottom': '15px'},
+                    children=[
+                        html.Button(
+                            children=[
+                                html.Div(scenario['name'], style={'fontWeight': '700', 'marginBottom': '5px'}),
+                                html.Div(scenario['changes'], style={'fontSize': '12px', 'opacity': '0.8', 'textAlign': 'left'}),
+                                html.Div(f"Risque estimé: {scenario['estimated_risk']:.1f}%", 
+                                        style={'fontSize': '11px', 'color': BRAND_COLOR, 'marginTop': '5px'}),
+                            ],
+                            id={'type': 'scenario-button', 'index': idx},
+                            style=button_scenario,
+                            n_clicks=0,
+                        ),
+                    ]
+                )
+            )
+
+        return scenarios_elements, {str(i): s for i, s in enumerate(scenarios)}
+    
+    except Exception as e:
+        return [html.Div(f"Erreur: {str(e)}", style={'color': DANGER_COLOR})], {}
+
+
+# --- CALLBACK POUR APPLIQUER UN SCÉNARIO ---
 
 
 # --- CALLBACK POUR MISE À JOUR EN TEMPS RÉEL ---
@@ -416,19 +595,27 @@ app.layout = html.Div(
         Input("job_involvement", "value"),
         Input("work_life_balance", "value"),
         Input("performance_rating", "value"),
+        Input("telework_days", "value"),
     ],
 )
 def update_dashboard(age, gender, maritalstatus, distance, total_working_years, monthly_income, education, 
                      overtime, businesstravel, job_level, num_companies_worked, job_satisfaction, 
                      environment_satisfaction, relationship_satisfaction, job_involvement, 
-                     work_life_balance, performance_rating):
+                     work_life_balance, performance_rating, telework_days):
     
-    # Préparer les données
+    # Vérifier que distance n'est pas None
+    if distance is None or distance == "":
+        distance = 0
+    
+    # Calculer la distance réduite par le télétravail
+    distance_reduction_per_day = float(distance) * 0.20  # 20% par jour
+    effective_distance = max(0, float(distance) - (telework_days * distance_reduction_per_day))
+    
     data = {
         "AGE": age,
         "GENDER": gender,
         "MARITALSTATUS": maritalstatus,
-        "DISTANCEFROMHOME": distance,
+        "DISTANCEFROMHOME": effective_distance,
         "TOTALWORKINGYEARS": total_working_years,
         "MONTHLYINCOME": monthly_income,
         "EDUCATION": education,
@@ -476,7 +663,7 @@ def update_dashboard(age, gender, maritalstatus, distance, total_working_years, 
             level_style,
             f"{age} ans",
             f"{total_working_years} ans",
-            f"{distance} km",
+            f"{effective_distance:.1f} km",
         ]
 
     except Exception as e:

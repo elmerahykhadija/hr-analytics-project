@@ -1869,3 +1869,312 @@ from base
 [0m15:34:18.668367 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'invocation', 'label': 'end', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x7872ca2d83d0>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x7872ca2d8490>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x7872cfaf4c10>]}
 [0m15:34:18.668726 [debug] [MainThread]: Flushing usage events
 [0m15:34:19.307373 [debug] [MainThread]: An error was encountered while trying to flush usage events
+[0m19:18:29.280869 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'invocation', 'label': 'start', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x79cc4a5ede10>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x79cc4b48ac50>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x79cc4a6468d0>]}
+
+
+============================== 19:18:29.296340 | 6f995d60-4de5-48d2-9450-6cec05475f56 ==============================
+[0m19:18:29.296340 [info ] [MainThread]: Running with dbt=1.9.0-b4
+[0m19:18:29.297596 [debug] [MainThread]: running dbt with arguments {'printer_width': '80', 'indirect_selection': 'eager', 'write_json': 'True', 'log_cache_events': 'False', 'partial_parse': 'True', 'cache_selected_only': 'False', 'warn_error': 'None', 'version_check': 'True', 'fail_fast': 'False', 'log_path': 'dbt_hr_project/logs', 'debug': 'False', 'profiles_dir': 'dbt_hr_project', 'use_colors': 'True', 'use_experimental_parser': 'False', 'no_print': 'None', 'quiet': 'False', 'empty': 'False', 'warn_error_options': 'WarnErrorOptions(include=[], exclude=[])', 'introspect': 'True', 'invocation_command': 'dbt run --project-dir dbt_hr_project --profiles-dir dbt_hr_project', 'log_format': 'default', 'target_path': 'None', 'static_parser': 'True', 'send_anonymous_usage_stats': 'True'}
+[0m19:18:30.859216 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'project_id', 'label': '6f995d60-4de5-48d2-9450-6cec05475f56', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x79cc2d363490>]}
+[0m19:18:30.984584 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'adapter_info', 'label': '6f995d60-4de5-48d2-9450-6cec05475f56', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x79cc4b53e3d0>]}
+[0m19:18:30.986632 [info ] [MainThread]: Registered adapter: snowflake=1.8.0
+[0m19:18:31.193719 [debug] [MainThread]: checksum: 0d3acddb5afbce98f9888b13248063cae3d09e6e329263e3ffe4b2a6aa072c8d, vars: {}, profile: , target: , version: 1.9.0b4
+[0m19:18:31.439920 [info ] [MainThread]: Unable to do partial parsing because profile has changed
+[0m19:18:31.440965 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'partial_parser', 'label': '6f995d60-4de5-48d2-9450-6cec05475f56', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x79cc4b3b42d0>]}
+[0m19:18:33.561185 [warn ] [MainThread]: [[33mWARNING[0m]: Configuration paths exist in your dbt_project.yml file which do not apply to any resources.
+There are 1 unused configuration paths:
+- models.dbt_hr_project.example
+[0m19:18:33.577242 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'load_project', 'label': '6f995d60-4de5-48d2-9450-6cec05475f56', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x79cc2c0af210>]}
+[0m19:18:33.696487 [debug] [MainThread]: Wrote artifact WritableManifest to dbt_hr_project/target/manifest.json
+[0m19:18:33.698612 [debug] [MainThread]: Wrote artifact SemanticManifest to dbt_hr_project/target/semantic_manifest.json
+[0m19:18:33.755656 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'resource_counts', 'label': '6f995d60-4de5-48d2-9450-6cec05475f56', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x79cc0fdea7d0>]}
+[0m19:18:33.758184 [info ] [MainThread]: Found 2 models, 1 source, 459 macros
+[0m19:18:33.759309 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'runnable_timing', 'label': '6f995d60-4de5-48d2-9450-6cec05475f56', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x79cc2c081090>]}
+[0m19:18:33.763545 [info ] [MainThread]: 
+[0m19:18:33.764122 [info ] [MainThread]: Concurrency: 4 threads (target='dev')
+[0m19:18:33.764513 [info ] [MainThread]: 
+[0m19:18:33.765076 [debug] [MainThread]: Acquiring new snowflake connection 'master'
+[0m19:18:33.769853 [debug] [ThreadPool]: Acquiring new snowflake connection 'list_RH_DB'
+[0m19:18:33.786316 [debug] [ThreadPool]: Using snowflake connection "list_RH_DB"
+[0m19:18:33.786819 [debug] [ThreadPool]: On list_RH_DB: /* {"app": "dbt", "dbt_version": "1.9.0b4", "profile_name": "dbt_hr_project", "target_name": "dev", "connection_name": "list_RH_DB"} */
+show terse schemas in database RH_DB
+    limit 10000
+[0m19:18:33.787118 [debug] [ThreadPool]: Opening a new connection, currently in state init
+[0m19:18:35.031166 [debug] [ThreadPool]: SQL status: SUCCESS 4 in 1.244 seconds
+[0m19:18:35.033027 [debug] [ThreadPool]: On list_RH_DB: Close
+[0m19:18:35.169235 [debug] [ThreadPool]: Re-using an available connection from the pool (formerly list_RH_DB, now list_RH_DB_GOLD)
+[0m19:18:35.184215 [debug] [ThreadPool]: Using snowflake connection "list_RH_DB_GOLD"
+[0m19:18:35.184674 [debug] [ThreadPool]: On list_RH_DB_GOLD: /* {"app": "dbt", "dbt_version": "1.9.0b4", "profile_name": "dbt_hr_project", "target_name": "dev", "connection_name": "list_RH_DB_GOLD"} */
+show terse objects in RH_DB.GOLD limit 10000
+[0m19:18:35.185018 [debug] [ThreadPool]: Opening a new connection, currently in state closed
+[0m19:18:36.229634 [debug] [ThreadPool]: SQL status: SUCCESS 0 in 1.043 seconds
+[0m19:18:36.231249 [debug] [ThreadPool]: On list_RH_DB_GOLD: Close
+[0m19:18:36.348354 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'runnable_timing', 'label': '6f995d60-4de5-48d2-9450-6cec05475f56', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x79cc4cfe2010>]}
+[0m19:18:36.364020 [debug] [Thread-1 (]: Began running node model.dbt_hr_project.hr_employee_cleaned
+[0m19:18:36.364706 [info ] [Thread-1 (]: 1 of 2 START sql table model GOLD.hr_employee_cleaned .......................... [RUN]
+[0m19:18:36.365324 [debug] [Thread-1 (]: Re-using an available connection from the pool (formerly list_RH_DB_GOLD, now model.dbt_hr_project.hr_employee_cleaned)
+[0m19:18:36.365706 [debug] [Thread-1 (]: Began compiling node model.dbt_hr_project.hr_employee_cleaned
+[0m19:18:36.377900 [debug] [Thread-1 (]: Writing injected SQL for node "model.dbt_hr_project.hr_employee_cleaned"
+[0m19:18:36.378986 [debug] [Thread-1 (]: Began executing node model.dbt_hr_project.hr_employee_cleaned
+[0m19:18:36.412698 [debug] [Thread-1 (]: Writing runtime sql for node "model.dbt_hr_project.hr_employee_cleaned"
+[0m19:18:36.418526 [debug] [Thread-1 (]: Using snowflake connection "model.dbt_hr_project.hr_employee_cleaned"
+[0m19:18:36.419198 [debug] [Thread-1 (]: On model.dbt_hr_project.hr_employee_cleaned: /* {"app": "dbt", "dbt_version": "1.9.0b4", "profile_name": "dbt_hr_project", "target_name": "dev", "node_id": "model.dbt_hr_project.hr_employee_cleaned"} */
+create or replace transient table RH_DB.GOLD.hr_employee_cleaned
+         as
+        (
+
+with base as (
+
+    select *
+    from RH_DB.RAW.HR_RAW_DATA
+
+),
+
+-- 🔵 MEDIAN NUMÉRIQUES
+stats as (
+
+    select
+        percentile_cont(0.5) within group (order by Age) as median_age,
+        percentile_cont(0.5) within group (order by DailyRate) as median_dailyrate,
+        percentile_cont(0.5) within group (order by DistanceFromHome) as median_distance,
+        percentile_cont(0.5) within group (order by Education) as median_education,
+        percentile_cont(0.5) within group (order by EnvironmentSatisfaction) as median_envsat,
+        percentile_cont(0.5) within group (order by HourlyRate) as median_hourly,
+        percentile_cont(0.5) within group (order by JobInvolvement) as median_jobinv,
+        percentile_cont(0.5) within group (order by JobLevel) as median_joblevel,
+        percentile_cont(0.5) within group (order by JobSatisfaction) as median_jobsat,
+        percentile_cont(0.5) within group (order by MonthlyIncome) as median_income,
+        percentile_cont(0.5) within group (order by MonthlyRate) as median_monthlyrate,
+        percentile_cont(0.5) within group (order by NumCompaniesWorked) as median_numcomp,
+        percentile_cont(0.5) within group (order by PercentSalaryHike) as median_salaryhike,
+        percentile_cont(0.5) within group (order by PerformanceRating) as median_perf,
+        percentile_cont(0.5) within group (order by RelationshipSatisfaction) as median_rel,
+        percentile_cont(0.5) within group (order by StockOptionLevel) as median_stock,
+        percentile_cont(0.5) within group (order by TotalWorkingYears) as median_totalyears,
+        percentile_cont(0.5) within group (order by TrainingTimesLastYear) as median_training,
+        percentile_cont(0.5) within group (order by WorkLifeBalance) as median_wlb,
+        percentile_cont(0.5) within group (order by YearsAtCompany) as median_company,
+        percentile_cont(0.5) within group (order by YearsInCurrentRole) as median_role,
+        percentile_cont(0.5) within group (order by YearsSinceLastPromotion) as median_promo,
+        percentile_cont(0.5) within group (order by YearsWithCurrManager) as median_manager
+
+    from base
+
+),
+
+-- 🟢 MODE CATÉGORIELLES
+mode_values as (
+
+    select
+
+        (select BusinessTravel
+         from base
+         where BusinessTravel is not null
+         group by BusinessTravel
+         order by count(*) desc limit 1) as mode_business_travel,
+
+        (select Department
+         from base
+         where Department is not null
+         group by Department
+         order by count(*) desc limit 1) as mode_department,
+
+        (select EducationField
+         from base
+         where EducationField is not null
+         group by EducationField
+         order by count(*) desc limit 1) as mode_educationfield,
+
+        (select Gender
+         from base
+         where Gender is not null
+         group by Gender
+         order by count(*) desc limit 1) as mode_gender,
+
+        (select JobRole
+         from base
+         where JobRole is not null
+         group by JobRole
+         order by count(*) desc limit 1) as mode_jobrole,
+
+        (select MaritalStatus
+         from base
+         where MaritalStatus is not null
+         group by MaritalStatus
+         order by count(*) desc limit 1) as mode_marital,
+
+        (select OverTime
+         from base
+         where OverTime is not null
+         group by OverTime
+         order by count(*) desc limit 1) as mode_overtime
+
+)
+
+select
+
+    -- 🔥 TARGET
+    b.Attrition,
+
+    -- 🔵 NUMÉRIQUES (NULL → MEDIAN)
+    coalesce(b.Age, s.median_age) as Age,
+    coalesce(b.DailyRate, s.median_dailyrate) as DailyRate,
+    coalesce(b.DistanceFromHome, s.median_distance) as DistanceFromHome,
+    coalesce(b.Education, s.median_education) as Education,
+    coalesce(b.EnvironmentSatisfaction, s.median_envsat) as EnvironmentSatisfaction,
+    coalesce(b.HourlyRate, s.median_hourly) as HourlyRate,
+    coalesce(b.JobInvolvement, s.median_jobinv) as JobInvolvement,
+    coalesce(b.JobLevel, s.median_joblevel) as JobLevel,
+    coalesce(b.JobSatisfaction, s.median_jobsat) as JobSatisfaction,
+    coalesce(b.MonthlyIncome, s.median_income) as MonthlyIncome,
+    coalesce(b.MonthlyRate, s.median_monthlyrate) as MonthlyRate,
+    coalesce(b.NumCompaniesWorked, s.median_numcomp) as NumCompaniesWorked,
+    coalesce(b.PercentSalaryHike, s.median_salaryhike) as PercentSalaryHike,
+    coalesce(b.PerformanceRating, s.median_perf) as PerformanceRating,
+    coalesce(b.RelationshipSatisfaction, s.median_rel) as RelationshipSatisfaction,
+    coalesce(b.StockOptionLevel, s.median_stock) as StockOptionLevel,
+    coalesce(b.TotalWorkingYears, s.median_totalyears) as TotalWorkingYears,
+    coalesce(b.TrainingTimesLastYear, s.median_training) as TrainingTimesLastYear,
+    coalesce(b.WorkLifeBalance, s.median_wlb) as WorkLifeBalance,
+    coalesce(b.YearsAtCompany, s.median_company) as YearsAtCompany,
+    coalesce(b.YearsInCurrentRole, s.median_role) as YearsInCurrentRole,
+    coalesce(b.YearsSinceLastPromotion, s.median_promo) as YearsSinceLastPromotion,
+    coalesce(b.YearsWithCurrManager, s.median_manager) as YearsWithCurrManager,
+
+    -- 🟢 CATÉGORIELLES (NULL → MODE)
+    coalesce(b.BusinessTravel, mv.mode_business_travel) as BusinessTravel,
+    coalesce(b.Department, mv.mode_department) as Department,
+    coalesce(b.EducationField, mv.mode_educationfield) as EducationField,
+    coalesce(b.Gender, mv.mode_gender) as Gender,
+    coalesce(b.JobRole, mv.mode_jobrole) as JobRole,
+    coalesce(b.MaritalStatus, mv.mode_marital) as MaritalStatus,
+    coalesce(b.OverTime, mv.mode_overtime) as OverTime
+
+from base b
+cross join stats s
+cross join mode_values mv
+        );
+[0m19:18:36.419942 [debug] [Thread-1 (]: Opening a new connection, currently in state closed
+[0m19:18:37.592766 [debug] [Thread-1 (]: SQL status: SUCCESS 1 in 1.172 seconds
+[0m19:18:37.617403 [debug] [Thread-1 (]: On model.dbt_hr_project.hr_employee_cleaned: Close
+[0m19:18:37.746015 [debug] [Thread-1 (]: Sending event: {'category': 'dbt', 'action': 'run_model', 'label': '6f995d60-4de5-48d2-9450-6cec05475f56', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x79cc2d427a90>]}
+[0m19:18:37.746853 [info ] [Thread-1 (]: 1 of 2 OK created sql table model GOLD.hr_employee_cleaned ..................... [[32mSUCCESS 1[0m in 1.37s]
+[0m19:18:37.747482 [debug] [Thread-1 (]: Finished running node model.dbt_hr_project.hr_employee_cleaned
+[0m19:18:37.748784 [debug] [Thread-3 (]: Began running node model.dbt_hr_project.hr_employee_encoded
+[0m19:18:37.749329 [info ] [Thread-3 (]: 2 of 2 START sql table model GOLD.hr_employee_encoded .......................... [RUN]
+[0m19:18:37.749883 [debug] [Thread-3 (]: Acquiring new snowflake connection 'model.dbt_hr_project.hr_employee_encoded'
+[0m19:18:37.750231 [debug] [Thread-3 (]: Began compiling node model.dbt_hr_project.hr_employee_encoded
+[0m19:18:37.753914 [debug] [Thread-3 (]: Writing injected SQL for node "model.dbt_hr_project.hr_employee_encoded"
+[0m19:18:37.754699 [debug] [Thread-3 (]: Began executing node model.dbt_hr_project.hr_employee_encoded
+[0m19:18:37.760342 [debug] [Thread-3 (]: Writing runtime sql for node "model.dbt_hr_project.hr_employee_encoded"
+[0m19:18:37.765205 [debug] [Thread-3 (]: Using snowflake connection "model.dbt_hr_project.hr_employee_encoded"
+[0m19:18:37.765840 [debug] [Thread-3 (]: On model.dbt_hr_project.hr_employee_encoded: /* {"app": "dbt", "dbt_version": "1.9.0b4", "profile_name": "dbt_hr_project", "target_name": "dev", "node_id": "model.dbt_hr_project.hr_employee_encoded"} */
+create or replace transient table RH_DB.GOLD.hr_employee_encoded
+         as
+        (
+
+with base as (
+
+    select *
+    from RH_DB.GOLD.hr_employee_cleaned
+
+)
+
+select
+
+    -- 🔥 TARGET
+    Attrition,
+
+    -- 🔵 NUMÉRIQUES (déjà clean)
+    Age,
+    DailyRate,
+    DistanceFromHome,
+    Education,
+    EnvironmentSatisfaction,
+    HourlyRate,
+    JobInvolvement,
+    JobLevel,
+    JobSatisfaction,
+    MonthlyIncome,
+    MonthlyRate,
+    NumCompaniesWorked,
+    PercentSalaryHike,
+    PerformanceRating,
+    RelationshipSatisfaction,
+    StockOptionLevel,
+    TotalWorkingYears,
+    TrainingTimesLastYear,
+    WorkLifeBalance,
+    YearsAtCompany,
+    YearsInCurrentRole,
+    YearsSinceLastPromotion,
+    YearsWithCurrManager,
+
+    -- 🟢 BUSINESS TRAVEL
+    case when BusinessTravel = 'Travel_Rarely' then 1 else 0 end as BusinessTravel_Rarely,
+    case when BusinessTravel = 'Travel_Frequently' then 1 else 0 end as BusinessTravel_Frequently,
+    case when BusinessTravel = 'Non-Travel' then 1 else 0 end as BusinessTravel_NonTravel,
+
+    -- 🟢 DEPARTMENT
+    case when Department = 'Sales' then 1 else 0 end as Department_Sales,
+    case when Department = 'Research & Development' then 1 else 0 end as Department_RnD,
+    case when Department = 'Human Resources' then 1 else 0 end as Department_HR,
+
+    -- 🟢 EDUCATION FIELD
+    case when EducationField = 'Life Sciences' then 1 else 0 end as EducationField_LifeSciences,
+    case when EducationField = 'Medical' then 1 else 0 end as EducationField_Medical,
+    case when EducationField = 'Marketing' then 1 else 0 end as EducationField_Marketing,
+    case when EducationField = 'Technical Degree' then 1 else 0 end as EducationField_Technical,
+    case when EducationField = 'Other' then 1 else 0 end as EducationField_Other,
+    case when EducationField = 'Human Resources' then 1 else 0 end as EducationField_HumanResources,
+
+    -- 🟢 GENDER
+    case when Gender = 'Male' then 1 else 0 end as Gender_Male,
+    case when Gender = 'Female' then 1 else 0 end as Gender_Female,
+
+    -- 🟢 JOB ROLE (IMPORTANT)
+    case when JobRole = 'Sales Executive' then 1 else 0 end as JobRole_SalesExecutive,
+    case when JobRole = 'Research Scientist' then 1 else 0 end as JobRole_ResearchScientist,
+    case when JobRole = 'Laboratory Technician' then 1 else 0 end as JobRole_LaboratoryTechnician,
+    case when JobRole = 'Manager' then 1 else 0 end as JobRole_Manager,
+    case when JobRole = 'Healthcare Representative' then 1 else 0 end as JobRole_HealthcareRepresentative,
+    case when JobRole = 'Manufacturing Director' then 1 else 0 end as JobRole_ManufacturingDirector,
+    case when JobRole = 'Sales Representative' then 1 else 0 end as JobRole_SalesRepresentative,
+    case when JobRole = 'Research Director' then 1 else 0 end as JobRole_ResearchDirector,
+    case when JobRole = 'Human Resources' then 1 else 0 end as JobRole_HumanResources,
+
+    -- 🟢 MARITAL STATUS
+    case when MaritalStatus = 'Single' then 1 else 0 end as MaritalStatus_Single,
+    case when MaritalStatus = 'Married' then 1 else 0 end as MaritalStatus_Married,
+    case when MaritalStatus = 'Divorced' then 1 else 0 end as MaritalStatus_Divorced,
+
+    -- 🟢 OVERTIME (TRÈS IMPORTANT POUR ATTRITION)
+    case when OverTime = 'Yes' then 1 else 0 end as OverTime_Yes,
+    case when OverTime = 'No' then 1 else 0 end as OverTime_No
+
+from base
+        );
+[0m19:18:37.766388 [debug] [Thread-3 (]: Opening a new connection, currently in state init
+[0m19:18:38.749788 [debug] [Thread-3 (]: SQL status: SUCCESS 1 in 0.983 seconds
+[0m19:18:38.753035 [debug] [Thread-3 (]: On model.dbt_hr_project.hr_employee_encoded: Close
+[0m19:18:38.878389 [debug] [Thread-3 (]: Sending event: {'category': 'dbt', 'action': 'run_model', 'label': '6f995d60-4de5-48d2-9450-6cec05475f56', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x79cc0f0b4910>]}
+[0m19:18:38.880076 [info ] [Thread-3 (]: 2 of 2 OK created sql table model GOLD.hr_employee_encoded ..................... [[32mSUCCESS 1[0m in 1.13s]
+[0m19:18:38.880790 [debug] [Thread-3 (]: Finished running node model.dbt_hr_project.hr_employee_encoded
+[0m19:18:38.883682 [debug] [MainThread]: Connection 'master' was properly closed.
+[0m19:18:38.884482 [debug] [MainThread]: Connection 'model.dbt_hr_project.hr_employee_cleaned' was properly closed.
+[0m19:18:38.885110 [debug] [MainThread]: Connection 'model.dbt_hr_project.hr_employee_encoded' was properly closed.
+[0m19:18:38.885853 [info ] [MainThread]: 
+[0m19:18:38.886572 [info ] [MainThread]: Finished running 2 table models in 0 hours 0 minutes and 5.12 seconds (5.12s).
+[0m19:18:38.888615 [debug] [MainThread]: Command end result
+[0m19:18:38.927381 [debug] [MainThread]: Wrote artifact WritableManifest to dbt_hr_project/target/manifest.json
+[0m19:18:38.931260 [debug] [MainThread]: Wrote artifact SemanticManifest to dbt_hr_project/target/semantic_manifest.json
+[0m19:18:38.943291 [debug] [MainThread]: Wrote artifact RunExecutionResult to dbt_hr_project/target/run_results.json
+[0m19:18:38.944099 [info ] [MainThread]: 
+[0m19:18:38.944836 [info ] [MainThread]: [32mCompleted successfully[0m
+[0m19:18:38.945394 [info ] [MainThread]: 
+[0m19:18:38.945984 [info ] [MainThread]: Done. PASS=2 WARN=0 ERROR=0 SKIP=0 TOTAL=2
+[0m19:18:38.947558 [debug] [MainThread]: Resource report: {"command_name": "run", "command_success": true, "command_wall_clock_time": 9.769503, "process_user_time": 8.900119, "process_kernel_time": 2.18085, "process_mem_max_rss": "239540", "process_in_blocks": "27424", "process_out_blocks": "5288"}
+[0m19:18:38.948618 [debug] [MainThread]: Command `dbt run` succeeded at 19:18:38.948294 after 9.77 seconds
+[0m19:18:38.949267 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'invocation', 'label': 'end', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x79cc4a64d3d0>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x79cc4a64ced0>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x79cc4fcba810>]}
+[0m19:18:38.949795 [debug] [MainThread]: Flushing usage events
+[0m19:18:39.544320 [debug] [MainThread]: An error was encountered while trying to flush usage events

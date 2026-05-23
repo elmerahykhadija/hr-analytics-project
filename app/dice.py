@@ -135,3 +135,128 @@ def generate_counterfactuals_with_scenarios(input_data, total_CFs=3, desired_cla
     }
     
     return results
+
+def generate_smart_scenarios(input_data):
+    """
+    Générer des scénarios intelligents avec montants exacts en DH
+    et jours de télétravail réels
+    """
+    scenarios = []
+    current_distance = input_data['DISTANCEFROMHOME']
+    current_salary = input_data['MONTHLYINCOME']
+    current_overtime = input_data['OVERTIME']
+    current_travel = input_data['BUSINESSTRAVEL']
+    
+    # Scénario 1: Distance élevée → Ajouter jours de télétravail
+    if current_distance > 20:
+        scenario1 = input_data.copy()
+        telework_days = min(3, int(current_distance / 15))  # 1-3 jours selon distance
+        
+        # Réduire la distance de 20% par jour de télétravail
+        distance_reduction = current_distance * (0.20 * telework_days)
+        new_distance = max(0, current_distance - distance_reduction)
+        
+        scenario1['DISTANCEFROMHOME'] = new_distance
+        scenario1['telework_days'] = telework_days
+        
+        # Prédire le risque pour ce scénario
+        predicted_risk1 = predict_scenario_risk(scenario1)
+        
+        scenarios.append({
+            'name': f'Télétravail : {telework_days} jour{"s" if telework_days > 1 else ""}/semaine',
+            'changes': f"Distance: {current_distance:.0f}km → {new_distance:.0f}km (-{distance_reduction:.0f}km)",
+            'telework_days': telework_days,
+            'distance': new_distance,
+            'monthly_income': current_salary,
+            'overtime': current_overtime,
+            'businesstravel': current_travel,
+            'estimated_risk': predicted_risk1,
+        })
+    
+    # Scénario 2: Télétravail 2j + Augmentation salaire 300 DH
+    if current_distance > 15:
+        scenario2 = input_data.copy()
+        telework_days = 2
+        
+        distance_reduction = current_distance * (0.20 * telework_days)
+        new_distance = max(0, current_distance - distance_reduction)
+        salary_increase = 300  # Montant exact en DH
+        new_salary = current_salary + salary_increase
+        
+        scenario2['DISTANCEFROMHOME'] = new_distance
+        scenario2['MONTHLYINCOME'] = new_salary
+        scenario2['telework_days'] = telework_days
+        
+        predicted_risk2 = predict_scenario_risk(scenario2)
+        
+        scenarios.append({
+            'name': 'Télétravail 2j + Augmentation 300 DH',
+            'changes': f"Distance: -{distance_reduction:.0f}km | Salaire: +300 DH/mois",
+            'telework_days': telework_days,
+            'distance': new_distance,
+            'monthly_income': new_salary,
+            'overtime': current_overtime,
+            'businesstravel': current_travel,
+            'estimated_risk': predicted_risk2,
+        })
+    
+    # Scénario 3: Éliminer les heures supplémentaires + Augmentation 200 DH
+    if current_overtime == 'Yes':
+        scenario3 = input_data.copy()
+        salary_increase = 200  # Montant exact
+        new_salary = current_salary + salary_increase
+        
+        scenario3['OVERTIME'] = 'No'
+        scenario3['MONTHLYINCOME'] = new_salary
+        scenario3['telework_days'] = 0
+        
+        predicted_risk3 = predict_scenario_risk(scenario3)
+        
+        scenarios.append({
+            'name': 'Éliminer heures supplémentaires + Augmentation 200 DH',
+            'changes': f"OverTime: Oui → Non | Salaire: +200 DH/mois",
+            'telework_days': 0,
+            'distance': current_distance,
+            'monthly_income': new_salary,
+            'overtime': 'No',
+            'businesstravel': current_travel,
+            'estimated_risk': predicted_risk3,
+        })
+    
+    # Scénario 4: Réduire déplacements + Augmentation 250 DH
+    if current_travel != 'Non-Travel':
+        scenario4 = input_data.copy()
+        salary_increase = 250  # Montant exact
+        new_salary = current_salary + salary_increase
+        
+        scenario4['BUSINESSTRAVEL'] = 'Non-Travel'
+        scenario4['MONTHLYINCOME'] = new_salary
+        scenario4['telework_days'] = 0
+        
+        predicted_risk4 = predict_scenario_risk(scenario4)
+        
+        scenarios.append({
+            'name': 'Réduire déplacements + Augmentation 250 DH',
+            'changes': f"Déplacements: {current_travel} → Non-Travel | Salaire: +250 DH/mois",
+            'telework_days': 0,
+            'distance': current_distance,
+            'monthly_income': new_salary,
+            'overtime': current_overtime,
+            'businesstravel': 'Non-Travel',
+            'estimated_risk': predicted_risk4,
+        })
+    
+    return scenarios
+
+
+def predict_scenario_risk(scenario_data):
+    """
+    Prédire le risque d'attrition pour un scénario donné
+    """
+    try:
+        from simulation_service import predict_risk
+        result = predict_risk(scenario_data)
+        return result.get('risk_score', 0.5) * 100
+    except Exception as e:
+        print(f"Erreur prédiction risque: {e}")
+        return 50.0

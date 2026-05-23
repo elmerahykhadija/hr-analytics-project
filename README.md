@@ -55,7 +55,8 @@ Le pipeline est organisé en **5 étapes clés** exécutées en séquence :
 - **Condition de passage** : Dataset doit passer 100% des validations avant entraînement
 
 ### **4. Entraînement et Promotion du Modèle (ML Training)**
-- **Algorithme** : RandomForest Classifier (18 features sélectionnées)
+- **Algorithme** : RandomForest Classifier (16 features sélectionnées)
+- **Paramètres GridSearchCV** : n_estimators [100,200,300], max_depth [5,10,15], min_samples_split [2,5,10], min_samples_leaf [1,2,4], max_features ["sqrt","log2"]
 - **Processus** :
   - Split 80/20 (train/test) avec stratification sur la target
   - Hypertuning par GridSearchCV (5-fold cross-validation)
@@ -93,21 +94,28 @@ Le pipeline est organisé en **5 étapes clés** exécutées en séquence :
 
 ## 📊 Features du Modèle
 
-Le modèle utilise **18 features** sélectionnées et one-hot encodées :
+Le modèle utilise **16 features** sélectionnées et one-hot encodées :
 
-**Numériques** :
+**Numériques (13)** :
 - `AGE` - Âge de l'employé
 - `DISTANCEFROMHOME` - Distance domicile-travail (km)
-- `EDUCATION` - Niveau d'étude
+- `EDUCATION` - Niveau d'études
+- `JOBLEVEL` - Niveau hiérarchique
 - `MONTHLYINCOME` - Salaire mensuel
 - `TOTALWORKINGYEARS` - Expérience totale
+- `NUMCOMPANIESWORKED` - Nombre d'entreprises
+- `JOBSATISFACTION` - Satisfaction au travail (1-4)
+- `ENVIRONMENTSATISFACTION` - Satisfaction environnement (1-4)
+- `RELATIONSHIPSATISFACTION` - Satisfaction relations (1-4)
+- `JOBINVOLVEMENT` - Implication au travail (1-4)
+- `WORKLIFEBALANCE` - Équilibre vie pro/perso (1-4)
+- `PERFORMANCERATING` - Évaluation performance (3-4)
 
-**Catégorielles (one-hot encodées)** :
-- `BUSINESSTRAVEL_RARELY`, `BUSINESSTRAVEL_FREQUENTLY`, `BUSINESSTRAVEL_NONTRAVEL`
-- `DEPARTMENT_SALES`, `DEPARTMENT_RND`, `DEPARTMENT_HR`
+**Catégorielles (one-hot encodées, 9)** :
 - `GENDER_MALE`, `GENDER_FEMALE`
 - `MARITALSTATUS_SINGLE`, `MARITALSTATUS_MARRIED`, `MARITALSTATUS_DIVORCED`
-- `OVERTIME_YES`, `OVERTIME_NO`
+- `BUSINESSTRAVEL_NONTRAVEL`, `BUSINESSTRAVEL_TRAVEL_RARELY`, `BUSINESSTRAVEL_TRAVEL_FREQUENTLY`
+- `OVERTIME_NO`, `OVERTIME_YES`
 
 **Target** : `ATTRITION` (1 = attrition, 0 = retention)
 
@@ -338,3 +346,14 @@ Projet confidentiel - Données RH sensibles. Accès restreint aux équipes autor
 ---
 
 **Dernière mise à jour** : Mai 2026 | **Version** : 1.0.0
+
+### **Améliorations UI - Dashboard**
+- **Sticky Sidebar** : La colonne de droite (cercle de risque + rémunération + KPIs) reste visible lors du scroll dans les paramètres
+  - CSS `position: sticky` avec `top: 20px`
+  - Amélioration UX majeure : suivi du risque en temps réel
+- **Interface responsive** : Grille 2 colonnes (paramètres | visualisation)
+- **Sections organisées** : 4 groupes logiques de paramètres
+  - 👤 Informations Personnelles
+  - 🏢 Informations Professionnelles  
+  - 💰 Rémunération & Expérience
+  - ⭐ Satisfaction & Engagement
