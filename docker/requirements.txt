@@ -11,7 +11,9 @@ dbt-snowflake==1.8.0
 
 # --- Orchestration & MLOps ---
 prefect==2.19.5
-pydantic>=1.10.0,<2.0.0  # <--- CRITIQUE : Prefect 2.x demande la V1
+evidently==0.4.32
+pydantic<2.9.0
+litestar<=2.8.3
 mlflow==2.13.0
 
 # --- Data Quality ---

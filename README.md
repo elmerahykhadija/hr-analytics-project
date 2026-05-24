@@ -357,3 +357,30 @@ Projet confidentiel - Données RH sensibles. Accès restreint aux équipes autor
   - 🏢 Informations Professionnelles  
   - 💰 Rémunération & Expérience
   - ⭐ Satisfaction & Engagement
+
+---
+
+## 🎬 Module DICE - Générateur de Scénarios de Recommandations
+
+### **Objectif**
+Le module `app/dice.py` génère des **recommandations intelligentes et personnalisées** pour réduire le risque d'attrition identifié par le modèle ML. Il propose des scénarios d'amélioration des conditions d'emploi avec des estimations de l'impact sur le risque.
+
+### **Intégration au Dashboard**
+- **Accès** : Bouton "💡 Recommandations" dans le dashboard Dash
+- **Affichage** : Modal affichant les 4 scénarios générés (lecture seule, sans application automatique)
+- **Données** : Basé sur les paramètres actuels du collaborateur saisis dans le formulaire
+- **Calcul** : Simule chaque scénario via le modèle ML et affiche le risque estimé résultant
+
+### **Les 4 Scénarios Intelligents**
+
+| # | Scénario | Condition | Recommandation | Impact Économique |
+|---|----------|-----------|-----------------|-------------------|
+| **1** | Télétravail adapté | Distance > 20 km | 1-3 jours/semaine selon distance | -20% distance par jour |
+| **2** | Télétravail + Bonus | Distance > 15 km | 2 jours/semaine + 300 DH/mois | -40% distance + bonus |
+| **3** | Éliminer Overtime | OverTime = Oui | Suppression heures supp. + 200 DH/mois | Meilleur équilibre |
+| **4** | Réduire déplacements | BusinessTravel ≠ Aucun | Déplacements minimalistes + 250 DH/mois | Moins de stress |
+
+### **Logique de Calcul**
+
+#### **Scénario 1 : Télétravail Adapté**
+```

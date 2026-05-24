@@ -42,10 +42,10 @@ def data_quality_check():
     print("LOG: Data Quality validée ✓")
 
 @task(retries=1, retry_delay_seconds=30)
-def train_model():
-    """Entraîner le modèle ML et le promouvoir en Production"""
-    print("LOG: Démarrage Training du modèle")
-    result = subprocess.run(['python3', 'app/train.py'], capture_output=True, text=True)
+def datadrifting_training():
+    """ Détecter le data drift et entraîner le modèle ML"""
+    print("LOG: Démarrage de la détection de data drift et du training du modèle")
+    result = subprocess.run(['python3', 'app/monitor-train.py'], capture_output=True, text=True)
     print(f"STDOUT: {result.stdout}")
     if result.returncode != 0:
         print(f"STDERR: {result.stderr}")
@@ -62,7 +62,7 @@ def hr_attrition_flow():
     2. Seed : Charger dans Snowflake
     3. dbt run : Transformer et encoder les données
     4. Data Quality : Valider la qualité ML-ready
-    5. Train : Entraîner et promouvoir le modèle
+    5. Data Drift & Training : Détecter le data drift et entraîner le modèle
     """
     print("🚀 Démarrage du pipeline ML complet")
     print("="*60)
@@ -70,7 +70,7 @@ def hr_attrition_flow():
     ingest_data()
     prepare_data()
     data_quality_check()
-    train_model()
+    datadrifting_training()
     
     print("="*60)
     print("✓ ✓ ✓ Pipeline ML terminé avec succès ✓ ✓ ✓")

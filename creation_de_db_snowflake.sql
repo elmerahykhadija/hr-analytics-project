@@ -54,8 +54,7 @@ CREATE OR REPLACE TABLE RH_DB.RAW.HR_RAW_DATA (
     YearsAtCompany INT,
     YearsInCurrentRole INT,
     YearsSinceLastPromotion INT,
-    YearsWithCurrManager INT
+    YearsWithCurrManager INT,
+    IngestionDate TIMESTAMP DEFAULT CURRENT_TIMESTAMP()
 );
-SELECT CURRENT_ORGANIZATION_NAME() || '-' || CURRENT_ACCOUNT_NAME();
--- OU
-SELECT CURRENT_ACCOUNT();
+SELECT CURRENT_ORGANIZATION_NAME() || '-' || CURRENT_ACCOUNT();

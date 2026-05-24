@@ -11,7 +11,6 @@ select
 
     -- 🔥 TARGET
     Attrition,
-
     -- 🔵 NUMÉRIQUES (déjà clean)
     Age,
     DailyRate,
@@ -77,6 +76,8 @@ select
 
     -- 🟢 OVERTIME (TRÈS IMPORTANT POUR ATTRITION)
     case when OverTime = 'Yes' then 1 else 0 end as OverTime_Yes,
-    case when OverTime = 'No' then 1 else 0 end as OverTime_No
+    case when OverTime = 'No' then 1 else 0 end as OverTime_No,
+        -- 🕒 DATE D'INGESTION
+    CURRENT_TIMESTAMP() AS IngestionDate
 
 from base
