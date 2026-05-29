@@ -852,10 +852,3 @@ prefect server start
 - 🙏 Snowflake for cloud data warehouse infrastructure
 - 🙏 Team members who provided feedback and testing
 
-### **License**
-
-This project is licensed under the MIT License - see LICENSE file for details.
-
----
-
-**Made with ❤️ by an engineering student passionate about MLOps and data science**
