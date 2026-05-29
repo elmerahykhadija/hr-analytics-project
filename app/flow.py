@@ -45,7 +45,7 @@ def data_quality_check():
 def datadrifting_training():
     """ Détecter le data drift et entraîner le modèle ML"""
     print("LOG: Démarrage de la détection de data drift et du training du modèle")
-    result = subprocess.run(['python3', 'app/monitor-train.py'], capture_output=True, text=True)
+    result = subprocess.run(['python3', 'app/monitoring_training.py'], capture_output=True, text=True)
     print(f"STDOUT: {result.stdout}")
     if result.returncode != 0:
         print(f"STDERR: {result.stderr}")
