@@ -19,7 +19,7 @@
 9. [✅ Results & Achievements](#results--achievements)
 10. [📦 Installation Steps](#installation-steps)
 11. [🎓 What I Learned](#what-i-learned)
-12. [📞 Contact & Creator](#contact--creator)
+
 
 ---
 
@@ -808,14 +808,7 @@ prefect server start
 
 ---
 
-## 📞 Contact & Creator
 
-### **Project Information**
-
-- **Project Name** : HR Attrition Prediction System - MLOps Pipeline
-- **Version** : 1.0.0
-- **Status** : Production-Ready ✅
-- **Last Updated** : May 2026
 
 
 
