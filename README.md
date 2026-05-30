@@ -805,19 +805,6 @@ prefect server start
 7. **Documentation Matters** : Future-me appreciated clear documentation and logs
 8. **Iterative Improvement** : v1.0 is never perfect; build monitoring to enable v2.0
 
-### **Mistakes & Corrections**
-
-❌ **Mistake 1** : Initially optimized for Accuracy instead of F1-Score
-   ✅ **Fix** : Learned that imbalanced HR data requires F1-Score optimization
-
-❌ **Mistake 2** : No drift detection initially
-   ✅ **Fix** : Implemented Evidently AI to prevent model degradation
-
-❌ **Mistake 3** : Insufficient data validation
-   ✅ **Fix** : Added 30+ Great Expectations assertions
-
-❌ **Mistake 4** : Manual orchestration
-   ✅ **Fix** : Implemented Prefect for reliable, scalable automation
 
 ---
 
@@ -830,25 +817,6 @@ prefect server start
 - **Status** : Production-Ready ✅
 - **Last Updated** : May 2026
 
-### **Creator**
 
-**[Your Name]**
-- 📧 Email: [your.email@example.com]
-- 💼 LinkedIn: [linkedin.com/in/yourprofile]
-- 🐙 GitHub: [github.com/yourprofile]
-- 🎓 Student ID: [Your University / Program]
 
-### **Support & Contributions**
-
-- 🐛 **Bug Reports** : Open an issue on GitHub
-- 💡 **Feature Requests** : Create a feature request issue
-- 🤝 **Contributions** : Pull requests welcome! See CONTRIBUTING.md
-- 📚 **Documentation** : Refer to README.md and docs/ folder
-
-### **Acknowledgments**
-
-- 🙏 Mentors and advisors who guided this project
-- 🙏 Open-source communities (scikit-learn, dbt, Prefect, etc.)
-- 🙏 Snowflake for cloud data warehouse infrastructure
-- 🙏 Team members who provided feedback and testing
 
